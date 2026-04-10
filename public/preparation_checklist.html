@@ -588,14 +588,14 @@
   const macItems = [
     {
       id: 'macos_update',
-      title: 'macOSのバージョンを確認してChatGPTに聞く',
-      description: '【手順】\n① 画面左上のアップルマーク（）をクリック\n② 「このMacについて」を選択\n③ バージョン情報の画面が開いたらスクショを撮る\n   （⌘ + Shift + 4 で範囲選択して撮影）\n\n④ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のMacのOSバージョンはClaude Codeのインストールに問題ありませんか？最新でない場合はアップデート方法も教えてください。」\n\n⑤ ChatGPT の指示に従ってアップデートを完了させる\n\n※ アップデートには30分〜1時間かかる場合があります。当日ではなく事前に済ませておきましょう。',
+      title: 'macOS Tahoe（26.4）へアップデート',
+      description: 'Claude Code は最新の macOS が必要です。\nアップデートには時間がかかるので当日ではなく事前に済ませておきましょう。\n\n確認場所：システム設定 → 一般 → ソフトウェアアップデート',
       links: []
     },
     {
       id: 'mac_screenshot',
       title: 'スクショの撮り方（Mac）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n　→ マウスでドラッグして範囲を選択する\n保存先：デスクトップ\n\n撮ったスクショがデスクトップに保存されているか確認してみましょう。',
+      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n保存先：デスクトップ',
       links: []
     }
   ];
@@ -603,14 +603,14 @@
   const winItems = [
     {
       id: 'win_type',
-      title: 'WindowsのCPU種類をスクショしてChatGPTに聞く',
-      description: '【手順】\n① キーボードの「Windowsキー」+「R」を同時に押す\n② 小さな入力欄が開くので「msinfo32」と入力してEnterキー\n③ 「システム情報」の画面が開く\n④ その画面のスクショを撮る\n   （Windowsキー + Shift + S で範囲選択して撮影）\n\n⑤ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のWindowsパソコンはIntelですか、ARMですか？Claude Codeをインストールするにはどのバージョンのインストーラーをダウンロードすればいいか教えてください。」\n\n⑥ ChatGPT に教えてもらったインストーラーの種類をメモしておく',
+      title: 'WindowsのCPU種類を確認（Intel / ARM）',
+      description: 'Claude Code のインストーラーは CPU の種類によって異なります。\n自分の PC が Intel か ARM かを確認して、AIにどのバージョンをインストールすべきか聞いておきましょう。',
       links: []
     },
     {
       id: 'win_screenshot',
       title: 'スクショの撮り方（Windows）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windowsキー + PrtSc\n範囲選択：Windowsキー + Shift + S\n　→ マウスでドラッグして範囲を選択する\n保存先：ピクチャ → スクリーンショット\n\n撮ったスクショがピクチャフォルダに保存されているか確認してみましょう。',
+      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windows + PrtSc\n範囲選択：Windows + Shift + S\n保存先：ピクチャ → スクリーンショット',
       links: []
     }
   ];
