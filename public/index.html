@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Code インストール 事前準備</title>
+  <title>Claude Code インストール 事前準備セルフチェック</title>
   <style>
     :root {
-      --bg: #0a0e27;
-      --surface: #141830;
-      --surface2: #1e2340;
-      --primary: #667eea;
-      --secondary: #764ba2;
-      --success: #4caf50;
-      --warning: #ff6b6b;
-      --text: #ffffff;
-      --subtext: #a0a0c0;
-      --border: #2a2f52;
+      --bg: #f4f4f0;
+      --surface: #ffffff;
+      --surface2: #f8f8f5;
+      --primary: #f5a623;
+      --primary-dark: #e8941a;
+      --success: #27ae60;
+      --warning: #e74c3c;
+      --text: #1a1a1a;
+      --subtext: #888888;
+      --border: #e8e8e4;
+      --checked-bg: #fffbf0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,48 +24,103 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', sans-serif;
       min-height: 100vh;
     }
 
     /* Header */
     .header {
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 20px;
+      border-bottom: 2px solid var(--primary);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .header-logo {
-      font-size: 20px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .header-logo span {
+      color: var(--primary);
     }
 
     .header-subtitle {
       color: var(--subtext);
       font-size: 13px;
-      margin-top: 2px;
+      margin-left: 4px;
     }
 
     /* OS Selection */
     .os-selection {
-      max-width: 600px;
-      margin: 60px auto;
-      padding: 0 20px;
+      min-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      gap: 32px;
+    }
+
+    /* キャラ＋説明 縦並びエリア */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      max-width: 360px;
+      width: 100%;
+    }
+
+    .kuroko-img {
+      width: 180px;
+      display: block;
+    }
+
+    .speech-bubble {
+      background: white;
+      color: #333;
+      border-radius: 16px;
+      border-top-left-radius: 4px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.7;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      width: 100%;
       text-align: center;
     }
 
-    .os-selection h2 {
-      font-size: 22px;
-      margin-bottom: 8px;
+    .kuroko-about {
+      background: #fff8ee;
+      border: 1px solid #f5d88a;
+      border-radius: 12px;
+      padding: 14px 16px;
+      line-height: 1.75;
+      font-size: 13px;
+      color: #555;
+      margin-top: 12px;
+      width: 100%;
     }
 
-    .os-selection p {
-      color: var(--subtext);
-      font-size: 14px;
-      margin-bottom: 36px;
+    .kuroko-about p { margin-bottom: 5px; }
+    .kuroko-about p:last-child { margin-bottom: 0; }
+
+    .kuroko-about strong { color: var(--primary-dark); }
+
+    /* OS ボタン */
+    .os-prompt {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
     }
 
     .os-buttons {
@@ -74,28 +130,37 @@
     }
 
     .os-btn {
-      flex: 1;
-      max-width: 200px;
-      padding: 28px 16px;
-      background: var(--surface2);
+      width: 160px;
+      padding: 20px 16px;
+      background: var(--surface);
       border: 2px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       color: var(--text);
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 17px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .os-btn:hover {
       border-color: var(--primary);
-      background: rgba(102, 126, 234, 0.1);
+      background: #fffbf0;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(245,166,35,0.2);
     }
 
     .os-icon {
-      font-size: 44px;
+      font-size: 36px;
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+
+    .os-sub {
+      font-size: 11px;
+      color: var(--subtext);
+      margin-top: 4px;
+      font-weight: 400;
     }
 
     /* Checklist Container */
@@ -119,13 +184,13 @@
     }
 
     .os-tag {
-      background: rgba(102, 126, 234, 0.15);
+      background: #fff3d6;
       border: 1px solid var(--primary);
-      color: var(--primary);
+      color: var(--primary-dark);
       padding: 4px 14px;
       border-radius: 99px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .change-os-btn {
@@ -139,42 +204,80 @@
 
     .change-os-btn:hover { color: var(--text); }
 
-    /* Progress */
+    /* Progress Donut */
     .progress-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
-    }
-
-    .progress-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .donut-card {
+      background: white;
+      border: 2px solid #e8c49a;
+      border-radius: 20px;
+      padding: 24px 32px;
+      display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
-    .progress-label { font-size: 14px; color: var(--subtext); }
-
-    .progress-count {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
+    .donut-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
     }
 
-    .progress-bar-bg {
-      background: var(--border);
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
+    .donut-svg {
+      width: 140px;
+      height: 140px;
+      transform: rotate(-90deg);
     }
 
-    .progress-bar-fill {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.4s ease;
+    .donut-bg {
+      fill: none;
+      stroke: #e8d5c4;
+      stroke-width: 14;
+    }
+
+    .donut-fill {
+      fill: none;
+      stroke: #c49a7a;
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 238.76;
+      stroke-dashoffset: 238.76;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .donut-numbers {
+      font-size: 22px;
+      font-weight: 800;
+      color: #5a3e2b;
+      line-height: 1;
+    }
+
+    .donut-numbers span {
+      font-size: 14px;
+      font-weight: 600;
+      color: #8a6a55;
+    }
+
+    .donut-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8a6a55;
+      margin-top: 4px;
     }
 
     /* Controls */
@@ -186,7 +289,7 @@
     }
 
     .filter-btn {
-      background: none;
+      background: var(--surface);
       border: 1px solid var(--border);
       color: var(--subtext);
       padding: 6px 14px;
@@ -198,12 +301,12 @@
 
     .filter-btn.active {
       border-color: var(--primary);
-      color: var(--primary);
-      background: rgba(102, 126, 234, 0.1);
+      color: var(--primary-dark);
+      background: #fff3d6;
     }
 
     .reset-btn {
-      background: none;
+      background: var(--surface);
       border: 1px solid var(--border);
       color: var(--subtext);
       padding: 6px 14px;
@@ -220,11 +323,11 @@
 
     /* Section Label */
     .section-label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--subtext);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       margin: 24px 0 10px 4px;
     }
 
@@ -232,27 +335,28 @@
     .checklist-item {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
       overflow: hidden;
-      transition: border-color 0.2s, opacity 0.2s;
+      transition: border-color 0.2s, background 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .checklist-item.checked {
-      border-color: rgba(76, 175, 80, 0.5);
-      opacity: 0.7;
+      background: var(--checked-bg);
+      border-color: #f5d88a;
     }
 
     .item-header {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px 16px;
+      padding: 13px 16px;
       cursor: pointer;
       user-select: none;
     }
 
-    .item-header:hover { background: rgba(255,255,255,0.02); }
+    .item-header:hover { background: rgba(245,166,35,0.04); }
 
     /* Checkbox */
     .checkbox {
@@ -260,7 +364,7 @@
       height: 22px;
       min-width: 22px;
       border-radius: 6px;
-      border: 2px solid var(--border);
+      border: 2px solid #d0d0cc;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -268,45 +372,47 @@
       transition: all 0.2s;
       font-size: 13px;
       font-weight: 700;
+      background: white;
     }
 
     .checkbox.checked {
-      background: var(--success);
-      border-color: var(--success);
+      background: var(--primary);
+      border-color: var(--primary);
       color: white;
     }
 
     /* Badge */
     .badge {
       font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 99px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
       white-space: nowrap;
     }
 
     .badge-required {
-      background: rgba(255, 107, 107, 0.15);
-      color: var(--warning);
-      border: 1px solid rgba(255, 107, 107, 0.3);
+      background: #fde8e8;
+      color: #c0392b;
     }
 
     /* Item Title */
     .item-title {
       flex: 1;
-      font-size: 15px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
       line-height: 1.4;
+      color: var(--text);
     }
 
     .item-title.done {
       text-decoration: line-through;
       color: var(--subtext);
+      font-weight: 400;
     }
 
     /* Expand Arrow */
     .expand-arrow {
-      color: var(--subtext);
+      color: #c0c0bc;
       font-size: 11px;
       transition: transform 0.2s;
     }
@@ -318,23 +424,26 @@
       display: none;
       padding: 12px 16px 16px 50px;
       border-top: 1px solid var(--border);
+      background: var(--surface2);
     }
 
     .item-content.open { display: block; }
 
     .item-description {
-      color: var(--subtext);
-      font-size: 14px;
-      line-height: 1.7;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.8;
       margin-bottom: 12px;
       white-space: pre-line;
     }
 
     .content-label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--subtext);
       margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .content-links {
@@ -347,23 +456,24 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--primary);
+      color: #2980b9;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       padding: 8px 12px;
-      background: rgba(102, 126, 234, 0.08);
-      border-radius: 8px;
+      background: #eef6fc;
+      border-radius: 6px;
       transition: background 0.2s;
+      font-weight: 500;
     }
 
-    .content-link:hover { background: rgba(102, 126, 234, 0.16); }
+    .content-link:hover { background: #d6eaf8; }
 
     /* Select */
     .select-wrap { margin-top: 4px; }
 
     .select-input {
       width: 100%;
-      background: var(--surface2);
+      background: white;
       border: 1px solid var(--border);
       color: var(--text);
       padding: 10px 14px;
@@ -381,8 +491,8 @@
     /* Completion Banner */
     .completion-banner {
       display: none;
-      background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(102,126,234,0.15));
-      border: 1px solid var(--success);
+      background: linear-gradient(135deg, #f0fff4, #fffbf0);
+      border: 2px solid var(--success);
       border-radius: 12px;
       padding: 24px;
       text-align: center;
@@ -391,12 +501,32 @@
 
     .completion-banner.visible { display: block; }
 
-    .completion-banner h3 { font-size: 20px; margin-bottom: 8px; }
+    .completion-banner h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
 
     .completion-banner p {
       color: var(--subtext);
       font-size: 14px;
       line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .libecity-btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 99px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+      transition: all 0.2s;
+    }
+
+    .libecity-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245,166,35,0.5);
     }
 
     /* Modal */
@@ -404,7 +534,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.5);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -420,9 +550,10 @@
       max-width: 360px;
       width: 90%;
       text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     }
 
-    .modal h3 { font-size: 18px; margin-bottom: 10px; }
+    .modal h3 { font-size: 18px; margin-bottom: 10px; color: var(--text); }
 
     .modal p {
       color: var(--subtext);
@@ -461,22 +592,37 @@
 
 <!-- Header -->
 <div class="header">
-  <div class="header-logo">Claude Code</div>
-  <div class="header-subtitle">インストール 事前準備チェックリスト</div>
+  <div class="header-logo">Claude <span>Code</span></div>
+  <div class="header-subtitle">インストール 事前準備セルフチェック</div>
 </div>
 
 <!-- OS Selection -->
 <div class="os-selection" id="osSelection">
-  <h2>あなたのPCはどちらですか？</h2>
-  <p>OSによって事前準備の内容が一部異なります</p>
+
+  <div class="hero">
+    <img class="kuroko-img" src="images/assistant.png" alt="導入アシスタント">
+    <div class="speech-bubble">
+      こんにちは！Claude Code の準備を<br>一緒に進めましょう！<br>まずあなたのパソコンを教えてね。
+    </div>
+    <div class="kuroko-about">
+      <p><strong>クロコ</strong>とは、エージェント型AIの <strong>Claude Code</strong>（デスクトップアプリ版）のことです。</p>
+      <p>従来のチャット型AIとは違い、<strong>労働を代替してくれるAI</strong> です。産業革命とも言われています。</p>
+    </div>
+  </div>
+
+  <div class="os-prompt">あなたのパソコンの種類は？</div>
+
   <div class="os-buttons">
     <button class="os-btn" onclick="selectOS('mac')">
-      <span class="os-icon"></span>Mac
+      Mac
+      <div class="os-sub">Apple シリコン / Intel</div>
     </button>
     <button class="os-btn" onclick="selectOS('win')">
-      <span class="os-icon">🪟</span>Windows
+      Windows
+      <div class="os-sub">x64 / arm64</div>
     </button>
   </div>
+
 </div>
 
 <!-- Checklist -->
@@ -488,12 +634,17 @@
   </div>
 
   <div class="progress-section">
-    <div class="progress-header">
-      <span class="progress-label">事前準備の進捗</span>
-      <span class="progress-count" id="progressCount">0 / 0</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    <div class="donut-card">
+      <div class="donut-wrap">
+        <svg class="donut-svg" viewBox="0 0 100 100">
+          <circle class="donut-bg" cx="50" cy="50" r="38" />
+          <circle class="donut-fill" id="donutFill" cx="50" cy="50" r="38" />
+        </svg>
+        <div class="donut-center">
+          <div class="donut-numbers"><span id="donutDone">0</span><span>/<span id="donutTotal">0</span></span></div>
+          <div class="donut-label">事前準備</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -510,7 +661,10 @@
 
   <div class="completion-banner" id="completionBanner">
     <h3>🎉 準備完了！</h3>
-    <p>全ての事前確認が完了しました。<br>当日は会場でお会いしましょう！</p>
+    <p>全ての事前確認が完了しました。<br>下のボタンからリベシティのチャットへ参加してください！</p>
+    <a class="libecity-btn" href="https://libecity.com/room_list?room_id=Ul9y8sDHmo3cslU80diR" target="_blank">
+      リベシティのチャットへ参加する →
+    </a>
   </div>
 
 </div>
@@ -588,14 +742,14 @@
   const macItems = [
     {
       id: 'macos_update',
-      title: 'macOS Tahoe（26.4）へアップデート',
-      description: 'Claude Code は最新の macOS が必要です。\nアップデートには時間がかかるので当日ではなく事前に済ませておきましょう。\n\n確認場所：システム設定 → 一般 → ソフトウェアアップデート',
+      title: 'macOSのバージョンを確認してChatGPTに聞く',
+      description: '【手順】\n① 画面左上のアップルマーク（）をクリック\n② 「このMacについて」を選択\n③ バージョン情報の画面が開いたらスクショを撮る\n   （⌘ + Shift + 4 で範囲選択して撮影）\n\n④ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のMacのOSバージョンはClaude Codeのインストールに問題ありませんか？最新でない場合はアップデート方法も教えてください。」\n\n⑤ ChatGPT の指示に従ってアップデートを完了させる\n\n※ アップデートには30分〜1時間かかる場合があります。当日ではなく事前に済ませておきましょう。',
       links: []
     },
     {
       id: 'mac_screenshot',
       title: 'スクショの撮り方（Mac）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n保存先：デスクトップ',
+      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n　→ マウスでドラッグして範囲を選択する\n保存先：デスクトップ\n\n撮ったスクショがデスクトップに保存されているか確認してみましょう。',
       links: []
     }
   ];
@@ -603,14 +757,14 @@
   const winItems = [
     {
       id: 'win_type',
-      title: 'WindowsのCPU種類を確認（Intel / ARM）',
-      description: 'Claude Code のインストーラーは CPU の種類によって異なります。\n自分の PC が Intel か ARM かを確認して、AIにどのバージョンをインストールすべきか聞いておきましょう。',
+      title: 'WindowsのCPU種類をスクショしてChatGPTに聞く',
+      description: '【手順】\n① キーボードの「Windowsキー」+「R」を同時に押す\n② 小さな入力欄が開くので「msinfo32」と入力してEnterキー\n③ 「システム情報」の画面が開く\n④ その画面のスクショを撮る\n   （Windowsキー + Shift + S で範囲選択して撮影）\n\n⑤ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のWindowsパソコンはIntelですか、ARMですか？Claude Codeをインストールするにはどのバージョンのインストーラーをダウンロードすればいいか教えてください。」\n\n⑥ ChatGPT に教えてもらったインストーラーの種類をメモしておく',
       links: []
     },
     {
       id: 'win_screenshot',
       title: 'スクショの撮り方（Windows）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windows + PrtSc\n範囲選択：Windows + Shift + S\n保存先：ピクチャ → スクリーンショット',
+      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windowsキー + PrtSc\n範囲選択：Windowsキー + Shift + S\n　→ マウスでドラッグして範囲を選択する\n保存先：ピクチャ → スクリーンショット\n\n撮ったスクショがピクチャフォルダに保存されているか確認してみましょう。',
       links: []
     }
   ];
@@ -621,9 +775,7 @@
   let filterIncomplete = false;
 
   function init() {
-    if (currentOS) {
-      showChecklist();
-    }
+    // 常にOS選択画面からスタート
   }
 
   function selectOS(os) {
@@ -750,8 +902,13 @@
     const all = [...commonItems, ...osSpecific];
     const total = all.length;
     const done = all.filter(i => checked[i.id]).length;
-    document.getElementById('progressCount').textContent = done + ' / ' + total;
-    document.getElementById('progressBar').style.width = (total ? (done / total * 100) : 0) + '%';
+
+    const circumference = 238.76; // 2 * π * 38
+    const offset = total ? circumference * (1 - done / total) : circumference;
+    document.getElementById('donutFill').style.strokeDashoffset = offset;
+    document.getElementById('donutDone').textContent = done;
+    document.getElementById('donutTotal').textContent = total;
+
     document.getElementById('completionBanner').classList.toggle('visible', total > 0 && done === total);
   }
 
