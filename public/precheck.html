@@ -166,33 +166,30 @@
     }
 
     /* OS Tag */
-    .os-change {
+    .os-toggle {
       display: flex;
-      align-items: center;
-      gap: 10px;
       margin-bottom: 16px;
     }
 
-    .os-tag {
-      background: #fff3d6;
-      border: 1px solid var(--primary);
-      color: var(--primary-dark);
-      padding: 4px 14px;
-      border-radius: 99px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .change-os-btn {
-      background: none;
-      border: none;
+    .os-toggle-btn {
+      padding: 8px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--surface);
       color: var(--subtext);
-      font-size: 13px;
       cursor: pointer;
-      text-decoration: underline;
+      font-family: inherit;
+      transition: all 0.2s;
     }
+    .os-toggle-btn:first-child { border-radius: 8px 0 0 8px; }
+    .os-toggle-btn:last-child { border-radius: 0 8px 8px 0; border-left: none; }
 
-    .change-os-btn:hover { color: var(--text); }
+    .os-toggle-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
 
     /* Progress */
     .progress-section {
@@ -608,9 +605,9 @@
 <!-- Checklist -->
 <div class="checklist-container" id="checklistContainer">
 
-  <div class="os-change">
-    <span class="os-tag" id="osTag"></span>
-    <button class="change-os-btn" onclick="showOSSelection()">OSを変更する</button>
+  <div class="os-toggle">
+    <button class="os-toggle-btn" id="toggleMac" onclick="switchOS('mac')">Mac</button>
+    <button class="os-toggle-btn" id="toggleWin" onclick="switchOS('win')">Win</button>
   </div>
 
   <div class="progress-section">
@@ -933,6 +930,13 @@
     showChecklist();
   }
 
+  function switchOS(os) {
+    currentOS = os;
+    localStorage.setItem('os', os);
+    showChecklist();
+    saveToFirestore();
+  }
+
   function showOSSelection() {
     document.getElementById('osSelection').style.display = 'block';
     document.getElementById('checklistContainer').classList.remove('visible');
@@ -941,7 +945,8 @@
   function showChecklist() {
     document.getElementById('osSelection').style.display = 'none';
     document.getElementById('checklistContainer').classList.add('visible');
-    document.getElementById('osTag').textContent = currentOS === 'mac' ? ' Mac' : '🪟 Windows';
+    document.getElementById('toggleMac').classList.toggle('active', currentOS === 'mac');
+    document.getElementById('toggleWin').classList.toggle('active', currentOS === 'win');
     document.getElementById('osLabel').textContent = currentOS === 'mac' ? 'Mac 専用' : 'Windows 専用';
     renderAll();
     updateProgress();
@@ -1126,6 +1131,7 @@
 
   // モジュール内からHTMLのonclick属性で呼べるようwindowに公開
   window.selectOS = selectOS;
+  window.switchOS = switchOS;
   window.showOSSelection = showOSSelection;
   window.toggleExpand = toggleExpand;
   window.toggleCheck = toggleCheck;
