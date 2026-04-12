@@ -346,6 +346,27 @@
       border: 1px solid #f5c6c6;
     }
 
+    .badge-optional {
+      background: #e8f4fd;
+      color: #2980b9;
+      border: 1px solid #c5e0f5;
+    }
+
+    .badge-important {
+      background: #fde8e8;
+      color: var(--warning);
+      border: 1px solid #f5c6c6;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+
+    .checkbox.locked {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
     /* Item Title */
     .item-title {
       flex: 1;
@@ -613,6 +634,9 @@
   <div class="section-label" id="osLabel"></div>
   <div id="osItems"></div>
 
+  <div class="section-label">Git</div>
+  <div id="gitItems"></div>
+
   <div class="completion-banner" id="completionBanner">
     <h3>🎉 準備完了！</h3>
     <p>全ての事前確認が完了しました。<br>当日は会場でお会いしましょう！</p>
@@ -765,15 +789,12 @@
   const commonItems = [
     {
       id: 'wifi',
-      title: 'WiFiの確認',
-      description: 'インストールやアップデートには安定したWiFiが必要です。\n"google speed test" で検索してスピードテストを試してみましょう。',
-      links: [{ icon: '🔗', label: 'Google Speed Test を開く', url: 'https://www.google.com/search?q=google+speed+test' }]
-    },
-    {
-      id: 'power',
-      title: '電源ケーブルの用意',
-      description: 'OSのアップデート中はバッテリー切れを防ぐため電源ケーブルが必要です。\n当日は必ず持参してください。',
-      links: []
+      title: 'WiFiの接続状況',
+      description: 'インストールやアップデートには安定したWiFiが必要です。\n接続しているWiFiの速度を選択してください。',
+      links: [{ icon: '🔗', label: 'Google Speed Test を開く', url: 'https://www.google.com/search?q=google+speed+test' }],
+      type: 'select',
+      selectId: 'select_wifi',
+      options: ['選択してください', '高速', '低速', '繋がらない']
     },
     {
       id: 'sms',
@@ -788,29 +809,32 @@
       links: []
     },
     {
-      id: 'gmail',
-      title: 'Googleアカウント（Gmail）の確認',
-      description: 'このシステムへのログインに Google アカウントを使います。\nログインできるか事前に確認しておきましょう。',
-      links: []
-    },
-    {
-      id: 'name_badge',
-      title: '名札の用意',
-      description: '会場（新橋オフィス）では名札の着用が義務です。\n当日は名札を持参するか、会場で受け取ってください。',
-      links: []
-    },
-    {
       id: 'claude_account',
       title: 'Claudeのアカウント確認',
       description: 'Claude のアカウントをすでに持っていますか？',
       links: [],
       type: 'select',
       selectId: 'select_claude_account',
-      options: ['選択してください', 'アカウントなし', 'アカウントあり']
+      options: ['選択してください', 'ない', 'ある', 'たくさんある']
+    },
+    {
+      id: 'power',
+      title: '電源ケーブルの用意',
+      optional: true,
+      description: 'OSのアップデート中はバッテリー切れを防ぐため電源ケーブルが必要です。\n当日は必ず持参してください。',
+      links: []
+    },
+    {
+      id: 'name_badge',
+      title: '名札の用意',
+      optional: true,
+      description: '会場（新橋オフィス）では名札の着用が必要です。\n当日は名札を持参するか、会場で受け取ってください。',
+      links: []
     },
     {
       id: 'claude_plan',
       title: 'Claudeの契約プラン確認',
+      optional: true,
       description: '現在契約している Claude のプランを選択してください。\nプランによって当日の開始ステップが変わります。',
       links: [],
       type: 'select',
@@ -823,12 +847,14 @@
     {
       id: 'macos_update',
       title: 'macOS Tahoe（26.4）へアップデート',
-      description: 'Claude Code は最新の macOS が必要です。\nアップデートには時間がかかるので当日ではなく事前に済ませておきましょう。\n\n確認場所：システム設定 → 一般 → ソフトウェアアップデート',
+      important: true,
+      description: 'Claude Code は最新の macOS が必要です。最新版は「macOS Tahoe 26.4」です。\nアップデートには30分〜1時間かかるため、当日ではなく事前に済ませてください。\n\n確認場所：システム設定 → 一般 → ソフトウェアアップデート',
       links: []
     },
     {
       id: 'mac_screenshot',
       title: 'スクショの撮り方（Mac）',
+      optional: true,
       description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n保存先：デスクトップ',
       links: []
     }
@@ -838,14 +864,52 @@
     {
       id: 'win_type',
       title: 'WindowsのCPU種類を確認（Intel / ARM）',
-      description: 'Claude Code のインストーラーは CPU の種類によって異なります。\n自分の PC が Intel か ARM かを確認して、AIにどのバージョンをインストールすべきか聞いておきましょう。',
-      links: []
+      description: 'Claude Code のインストーラーは CPU の種類によって異なります。\n必ず確認してから選択してください。\n\n確認方法：Windowsキー + R →「msinfo32」と入力してEnter\n「システムの種類」欄で確認できます。',
+      links: [],
+      type: 'select',
+      selectId: 'select_win_type',
+      options: ['選択してください', 'Intel (x64)', 'ARM (ARM64)', 'わからない']
     },
     {
       id: 'win_screenshot',
       title: 'スクショの撮り方（Windows）',
+      optional: true,
       description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windows + PrtSc\n範囲選択：Windows + Shift + S\n保存先：ピクチャ → スクリーンショット',
       links: []
+    }
+  ];
+
+  const gitMacItems = [
+    {
+      id: 'git_mac_check',
+      title: 'Gitのインストール確認（Mac）',
+      optional: true,
+      description: 'ターミナルを開いて以下を入力してください：\n\ngit --version\n\nバージョン番号（例：git version 2.39.0）が表示されればインストール済みです。\n「command not found」と表示された場合はインストールが必要です。',
+      links: []
+    },
+    {
+      id: 'git_mac_install',
+      title: 'Gitのインストール（Mac）',
+      optional: true,
+      description: 'Gitがインストールされていない場合は以下の方法でインストールしてください。\n\n【方法①】Xcode コマンドラインツール（推奨・無料）\nターミナルで以下を実行：\nxcode-select --install\n画面の指示に従ってインストール完了後、再度「git --version」で確認してください。\n\n【方法②】Homebrew 経由\nbrew install git',
+      links: []
+    }
+  ];
+
+  const gitWinItems = [
+    {
+      id: 'git_win_check',
+      title: 'Gitのインストール確認（Windows）',
+      optional: true,
+      description: 'コマンドプロンプト（またはPowerShell）を開いて以下を入力してください：\n\ngit --version\n\nバージョン番号（例：git version 2.44.0）が表示されればインストール済みです。\n「\u0027git\u0027 は...認識されません」と表示された場合はインストールが必要です。',
+      links: []
+    },
+    {
+      id: 'git_win_install',
+      title: 'Gitのインストール（Windows）',
+      optional: true,
+      description: 'Gitがインストールされていない場合は以下の手順でインストールしてください。\n\n① 下記リンクから「Git for Windows」をダウンロード\n② インストーラーを実行（設定はすべてデフォルトのままでOK）\n③ インストール完了後、コマンドプロンプトを再起動して「git --version」で確認',
+      links: [{ icon: '🔗', label: 'Git for Windows をダウンロード', url: 'https://git-scm.com/downloads/win' }]
     }
   ];
 
@@ -883,6 +947,7 @@
   function renderAll() {
     renderSection('commonItems', commonItems);
     renderSection('osItems', currentOS === 'mac' ? macItems : winItems);
+    renderSection('gitItems', currentOS === 'mac' ? gitMacItems : gitWinItems);
   }
 
   function renderSection(containerId, items) {
@@ -896,6 +961,7 @@
 
   function buildItem(item) {
     const isChecked = !!checked[item.id];
+    const isLocked = item.type === 'select' && !isChecked;
     const div = document.createElement('div');
     div.className = 'checklist-item' + (isChecked ? ' checked' : '');
     div.id = 'item-' + item.id;
@@ -906,7 +972,7 @@
     if (hasContent) {
       let inner = '';
       if (item.description) {
-        inner += `<p class="item-description">${item.description}</p>`;
+        inner += `<p class="item-description">${item.description.replace(/\n/g, '<br>')}</p>`;
       }
       if (item.type === 'select') {
         const savedVal = checked[item.id + '_val'] || '';
@@ -926,10 +992,17 @@
       contentHTML = `<div class="item-content" id="content-${item.id}">${inner}</div>`;
     }
 
+    const badge = item.optional
+      ? `<span class="badge badge-optional">任意</span>`
+      : `<span class="badge badge-required">必須</span>`;
+    const importantBadge = item.important
+      ? `<span class="badge badge-important">重要</span>`
+      : '';
+
     div.innerHTML = `
       <div class="item-header" onclick="toggleExpand('${item.id}')">
-        <div class="checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(event,'${item.id}')">${isChecked ? '✓' : ''}</div>
-        <span class="badge badge-required">必須</span>
+        <div class="checkbox${isChecked ? ' checked' : ''}${isLocked ? ' locked' : ''}" onclick="toggleCheck(event,'${item.id}')">${isChecked ? '✓' : ''}</div>
+        ${badge}${importantBadge}
         <span class="item-title${isChecked ? ' done' : ''}">${item.title}</span>
         ${hasContent ? `<span class="expand-arrow" id="arrow-${item.id}">▼</span>` : ''}
       </div>
@@ -947,6 +1020,29 @@
 
   function toggleCheck(e, id) {
     e.stopPropagation();
+    const allItems = [...commonItems, ...macItems, ...winItems, ...gitMacItems, ...gitWinItems];
+    const item = allItems.find(i => i.id === id);
+
+    // select型は選択によってのみチェック可能
+    if (item?.type === 'select') {
+      if (!checked[id]) {
+        // 展開してselectをフラッシュ
+        const content = document.getElementById('content-' + id);
+        const arrow = document.getElementById('arrow-' + id);
+        if (content && !content.classList.contains('open')) {
+          content.classList.add('open');
+          if (arrow) arrow.classList.add('open');
+        }
+        const select = content?.querySelector('.select-input');
+        if (select) {
+          select.style.borderColor = 'var(--warning)';
+          select.focus();
+          setTimeout(() => { select.style.borderColor = ''; }, 1500);
+        }
+      }
+      return;
+    }
+
     if (checked[id]) {
       delete checked[id];
     } else {
@@ -981,12 +1077,16 @@
 
   function updateProgress() {
     const osSpecific = currentOS === 'mac' ? macItems : winItems;
-    const all = [...commonItems, ...osSpecific];
+    const gitSpecific = currentOS === 'mac' ? gitMacItems : gitWinItems;
+    const all = [...commonItems, ...osSpecific, ...gitSpecific];
+    const required = all.filter(i => !i.optional);
     const total = all.length;
     const done = all.filter(i => checked[i.id]).length;
+    const requiredDone = required.filter(i => checked[i.id]).length;
     document.getElementById('progressCount').textContent = done + ' / ' + total;
     document.getElementById('progressBar').style.width = (total ? (done / total * 100) : 0) + '%';
-    document.getElementById('completionBanner').classList.toggle('visible', total > 0 && done === total);
+    // 必須項目がすべて完了で完了バナー表示
+    document.getElementById('completionBanner').classList.toggle('visible', required.length > 0 && requiredDone === required.length);
   }
 
   function toggleFilter() {
