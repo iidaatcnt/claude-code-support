@@ -330,6 +330,37 @@
     .image-upload-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
     .image-file-input { display: none; }
 
+    /* Paste area */
+    .paste-area {
+      border: 2px dashed var(--primary);
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: text;
+      background: #fffbf0;
+      color: var(--primary-dark);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      min-height: 80px;
+      outline: none;
+      line-height: 1.7;
+    }
+    .paste-area:focus {
+      border-color: var(--primary-dark);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+    }
+    .paste-area.dragging {
+      background: #fff3d6;
+      border-color: var(--primary-dark);
+    }
+    .paste-hint {
+      font-size: 12px;
+      color: var(--subtext);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
     /* Save / Delete */
     .editor-actions {
       display: flex;
@@ -532,6 +563,14 @@
             <button class="add-block-btn" onclick="addBlock('image')">＋ 画像</button>
           </div>
         </div>
+
+        <div style="margin-top:10px">
+          <div class="paste-area" id="pasteArea" contenteditable="false" tabindex="0">
+            📋 ここにテキスト＆画像をまとめて貼り付け
+            <div class="paste-hint">Ctrl+V / ⌘+V でペースト。テキストと画像が自動でブロックに分かれます</div>
+          </div>
+        </div>
+
         <div style="margin-top:10px">
           <div class="blocks-list" id="blocksList"></div>
         </div>
@@ -560,6 +599,192 @@
     });
 
     renderBlocks();
+
+    // ペーストエリアのイベント設定
+    const pasteArea = document.getElementById('pasteArea');
+    if (pasteArea) {
+      pasteArea.addEventListener('paste', handlePaste);
+      pasteArea.addEventListener('dragover', e => {
+        e.preventDefault();
+        pasteArea.classList.add('dragging');
+      });
+      pasteArea.addEventListener('dragleave', () => {
+        pasteArea.classList.remove('dragging');
+      });
+      pasteArea.addEventListener('drop', e => {
+        e.preventDefault();
+        pasteArea.classList.remove('dragging');
+        handleDroppedFiles(e.dataTransfer);
+      });
+    }
+  }
+
+  // ── ペースト処理 ──────────────────────────
+  function handlePaste(e) {
+    e.preventDefault();
+    const clipboardData = e.clipboardData;
+    if (!clipboardData) return;
+
+    // HTML からテキストと画像を分離して処理
+    const html = clipboardData.getData('text/html');
+    const plainText = clipboardData.getData('text/plain');
+
+    // クリップボードの画像ファイルを収集
+    const imageFiles = [];
+    for (let i = 0; i < clipboardData.items.length; i++) {
+      const item = clipboardData.items[i];
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) imageFiles.push(file);
+      }
+    }
+
+    // HTML が含まれる場合 → テキストと画像タグを解析して分割
+    if (html) {
+      parseHtmlToBlocks(html, imageFiles);
+    } else if (imageFiles.length > 0) {
+      // 画像のみペーストされた場合
+      imageFiles.forEach(file => addImageBlockFromFile(file));
+    } else if (plainText) {
+      // テキストのみ
+      addTextBlockFromContent(plainText);
+    }
+
+    renderBlocks();
+    showToast('ペーストからブロックを追加しました', 'success');
+  }
+
+  function handleDroppedFiles(dataTransfer) {
+    if (!dataTransfer || !dataTransfer.files) return;
+    let added = false;
+    for (let i = 0; i < dataTransfer.files.length; i++) {
+      const file = dataTransfer.files[i];
+      if (file.type.startsWith('image/')) {
+        addImageBlockFromFile(file);
+        added = true;
+      }
+    }
+    if (added) {
+      renderBlocks();
+      showToast('画像ブロックを追加しました', 'success');
+    }
+  }
+
+  function parseHtmlToBlocks(html, fallbackImageFiles) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const body = doc.body;
+
+    // img src を収集（base64 や blob の場合に使う）
+    const imgElements = body.querySelectorAll('img');
+    let fallbackIndex = 0;
+
+    // body の子ノードを順番にたどる
+    const nodes = body.childNodes;
+    let textBuffer = '';
+
+    function flushText() {
+      const trimmed = textBuffer.trim();
+      if (trimmed) {
+        addTextBlockFromContent(trimmed);
+      }
+      textBuffer = '';
+    }
+
+    function processNode(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent;
+        if (text.trim()) textBuffer += text;
+        return;
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      const el = node;
+      const tag = el.tagName.toLowerCase();
+
+      // img タグ → 画像ブロック
+      if (tag === 'img') {
+        flushText();
+        const src = el.getAttribute('src');
+        if (src && (src.startsWith('data:') || src.startsWith('blob:'))) {
+          // インライン画像: data URI をそのまま使う
+          addImageBlockFromDataUrl(src);
+        } else if (src && src.startsWith('http')) {
+          // 外部URL: テキストブロックにURLを追加（CORSのためアップロード不可）
+          addTextBlockFromContent(`[画像] ${src}`);
+        } else if (fallbackImageFiles[fallbackIndex]) {
+          addImageBlockFromFile(fallbackImageFiles[fallbackIndex]);
+          fallbackIndex++;
+        }
+        return;
+      }
+
+      // img を含む要素は再帰処理
+      if (el.querySelector('img')) {
+        flushText();
+        el.childNodes.forEach(child => processNode(child));
+        return;
+      }
+
+      // ブロック要素 → テキストを区切る
+      const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'br', 'hr', 'blockquote', 'pre', 'tr'];
+      if (blockTags.includes(tag)) {
+        const innerText = el.textContent.trim();
+        if (innerText) {
+          textBuffer += (textBuffer ? '\n' : '') + innerText;
+        }
+        return;
+      }
+
+      // インライン要素 → テキストに追加
+      const innerText = el.textContent;
+      if (innerText.trim()) textBuffer += innerText;
+    }
+
+    nodes.forEach(node => processNode(node));
+    flushText();
+
+    // fallback: HTML内にimgがなく、クリップボードに画像ファイルがある場合
+    while (fallbackIndex < fallbackImageFiles.length) {
+      addImageBlockFromFile(fallbackImageFiles[fallbackIndex]);
+      fallbackIndex++;
+    }
+  }
+
+  function addTextBlockFromContent(text) {
+    blocks.push({ type: 'text', content: text });
+  }
+
+  function addImageBlockFromFile(file) {
+    const block = { type: 'image', url: '', _file: file, _preview: '' };
+    blocks.push(block);
+    const idx = blocks.length - 1;
+    const reader = new FileReader();
+    reader.onload = e => {
+      blocks[idx]._preview = e.target.result;
+      const img = document.getElementById(`preview-${idx}`);
+      if (img) { img.src = e.target.result; img.classList.add('visible'); }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addImageBlockFromDataUrl(dataUrl) {
+    // data URL → File オブジェクトに変換
+    const arr = dataUrl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const ext = mime.split('/')[1] || 'png';
+    try {
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      const file = new File([u8arr], `pasted_${Date.now()}.${ext}`, { type: mime });
+      addImageBlockFromFile(file);
+    } catch {
+      // data URL のデコードに失敗した場合はスキップ
+      console.warn('画像のデコードに失敗しました');
+    }
   }
 
   function renderTags() {
