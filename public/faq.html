@@ -34,14 +34,15 @@
       align-items: center;
       gap: 12px;
     }
-    .header-logo { font-size: 18px; font-weight: 800; color: var(--text); }
+    .header-logo { font-size: 18px; font-weight: 800; color: var(--text); text-decoration: none; }
     .header-logo span { color: var(--primary); }
-    .header-nav { margin-left: auto; display: flex; gap: 16px; }
+    .header-nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
     .header-nav a {
       color: var(--subtext);
       text-decoration: none;
       font-size: 13px;
       font-weight: 600;
+      transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--primary-dark); }
     .header-nav a.active { color: var(--primary-dark); }
@@ -421,9 +422,8 @@
 <body>
 
 <div class="header">
-  <div class="header-logo">Claude <span>Code</span></div>
+  <a href="/" class="header-logo">Claude <span>Code</span> サポート</a>
   <nav class="header-nav">
-    <a href="/">トップ</a>
     <a href="/precheck">事前準備</a>
     <a href="/faq" class="active">FAQ</a>
     <div id="authArea">
