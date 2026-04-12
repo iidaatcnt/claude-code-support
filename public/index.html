@@ -31,365 +31,217 @@
       padding: 14px 24px;
       display: flex;
       align-items: center;
-      gap: 12px;
     }
     .header-logo { font-size: 18px; font-weight: 800; }
     .header-logo span { color: var(--primary); }
-    .header-nav { margin-left: auto; display: flex; gap: 20px; }
-    .header-nav a {
-      color: var(--subtext);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
-    .header-nav a:hover { color: var(--primary-dark); }
 
-    /* Hero */
+    /* Hero — compact, character-led */
     .hero {
-      max-width: 860px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: 60px 24px 40px;
-      display: flex;
-      align-items: center;
-      gap: 48px;
-    }
-
-    .hero-text { flex: 1; }
-
-    .hero-eyebrow {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: var(--primary-dark);
-      background: #fff3d6;
-      border: 1px solid var(--primary);
-      border-radius: 99px;
-      padding: 4px 14px;
-      margin-bottom: 20px;
-    }
-
-    .hero-title {
-      font-size: 38px;
-      font-weight: 900;
-      line-height: 1.25;
-      letter-spacing: -0.5px;
-      margin-bottom: 20px;
-    }
-    .hero-title .accent { color: var(--primary); }
-
-    .hero-desc {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #444;
-      margin-bottom: 32px;
-    }
-
-    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      padding: 14px 28px;
-      font-size: 15px;
-      font-weight: 700;
-      transition: background 0.2s, transform 0.1s;
-      display: inline-block;
-    }
-    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-
-    .btn-secondary {
-      background: var(--surface);
-      color: var(--text);
-      text-decoration: none;
-      border-radius: 12px;
-      padding: 14px 28px;
-      font-size: 15px;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      transition: border-color 0.2s, transform 0.1s;
-      display: inline-block;
-    }
-    .btn-secondary:hover { border-color: var(--primary); transform: translateY(-1px); }
-
-    .hero-image {
-      width: 240px;
-      min-width: 240px;
-      display: flex;
-      justify-content: center;
-    }
-    .hero-image img {
-      width: 220px;
-      filter: drop-shadow(0 8px 24px rgba(245,166,35,0.25));
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-
-    /* Speech bubble */
-    .bubble-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .speech-bubble {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      font-size: 14px;
-      line-height: 1.7;
+      padding: 48px 24px 20px;
       text-align: center;
+    }
+
+    .hero-character {
+      width: 120px;
+      filter: drop-shadow(0 4px 16px rgba(245,166,35,0.2));
+      margin-bottom: 16px;
+    }
+
+    .speech-bubble {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px 28px;
+      font-size: 15px;
+      line-height: 1.8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
       position: relative;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      max-width: 200px;
     }
     .speech-bubble::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      top: -9px;
       left: 50%;
       transform: translateX(-50%);
-      border: 10px solid transparent;
-      border-top-color: var(--border);
+      border: 9px solid transparent;
+      border-bottom-color: var(--border);
     }
     .speech-bubble::before {
       content: '';
       position: absolute;
-      bottom: -8px;
+      top: -7px;
       left: 50%;
       transform: translateX(-50%);
-      border: 9px solid transparent;
-      border-top-color: var(--surface);
+      border: 8px solid transparent;
+      border-bottom-color: var(--surface);
       z-index: 1;
     }
 
-    /* What is section */
-    .section {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 24px 60px;
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 2px;
-      background: var(--border);
-    }
-
-    .what-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .what-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .what-card-icon { font-size: 32px; margin-bottom: 12px; }
-    .what-card-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
-    .what-card-desc { font-size: 14px; line-height: 1.7; color: #555; }
-
-    /* Excitement section */
-    .excitement {
-      background: linear-gradient(135deg, #fff8ec, #fff3d6);
+    .hero-intro {
+      background: #fff8ec;
       border: 1px solid #f5d78e;
-      border-radius: 20px;
-      padding: 40px 32px;
-      margin-bottom: 60px;
-      text-align: center;
-    }
-    .excitement-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--primary-dark);
-      letter-spacing: 1.5px;
-      margin-bottom: 16px;
-    }
-    .excitement-title {
-      font-size: 28px;
-      font-weight: 900;
-      line-height: 1.4;
-      margin-bottom: 20px;
-    }
-    .excitement-title .accent { color: var(--primary); }
-    .excitement-desc {
-      font-size: 15px;
+      border-radius: 14px;
+      padding: 20px 24px;
+      font-size: 14px;
       line-height: 1.9;
       color: #555;
-      max-width: 560px;
-      margin: 0 auto 32px;
+      max-width: 520px;
+      margin: 0 auto 0;
+      text-align: left;
+    }
+    .hero-intro strong { color: var(--primary-dark); }
+
+    /* Menu cards — the primary action area */
+    .menu-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
     }
 
-    /* Nav cards */
-    .nav-cards {
+    .menu-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--subtext);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .menu-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 60px;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
-    .nav-card {
+    .menu-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 28px 24px;
+      padding: 24px 20px;
       text-decoration: none;
       color: var(--text);
       transition: all 0.2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
     }
-    .nav-card:hover {
+    .menu-card:hover {
       border-color: var(--primary);
       box-shadow: 0 4px 20px rgba(245,166,35,0.15);
       transform: translateY(-2px);
     }
-    .nav-card-icon { font-size: 28px; }
-    .nav-card-title { font-size: 16px; font-weight: 800; }
-    .nav-card-desc { font-size: 13px; color: var(--subtext); line-height: 1.6; }
-    .nav-card-arrow { margin-top: auto; font-size: 13px; color: var(--primary-dark); font-weight: 700; }
+
+    .menu-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .menu-card:nth-child(1) .menu-card-icon { background: #e8f8ee; }
+    .menu-card:nth-child(2) .menu-card-icon { background: #e8f0fd; }
+    .menu-card:nth-child(3) .menu-card-icon { background: #fff3d6; }
+    .menu-card:nth-child(4) .menu-card-icon { background: #f3e8fd; }
+
+    .menu-card-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .menu-card-desc {
+      font-size: 12px;
+      color: var(--subtext);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .menu-card-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 2px 7px;
+      align-self: flex-start;
+    }
+    .badge-free { background: #e8f8ee; color: #27ae60; }
+    .badge-ordered { background: #fff3d6; color: var(--primary-dark); }
 
     /* Footer */
     .footer {
       text-align: center;
-      padding: 32px 24px;
+      padding: 28px 24px;
       border-top: 1px solid var(--border);
-      font-size: 13px;
+      font-size: 12px;
       color: var(--subtext);
     }
 
-    @media (max-width: 640px) {
-      .hero { flex-direction: column-reverse; padding: 40px 20px 32px; gap: 32px; }
-      .hero-title { font-size: 28px; }
-      .hero-image { width: 100%; min-width: unset; }
-      .hero-image img { width: 160px; }
-      .excitement-title { font-size: 22px; }
+    @media (max-width: 520px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .hero-character { width: 100px; }
+      .speech-bubble { font-size: 14px; padding: 14px 20px; }
     }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-logo">Claude <span>Code</span></div>
-  <nav class="header-nav">
-    <a href="/precheck">事前準備</a>
-    <a href="/faq">FAQ</a>
-  </nav>
+  <div class="header-logo">Claude <span>Code</span> サポート</div>
 </div>
 
 <!-- Hero -->
 <div class="hero">
-  <div class="hero-text">
-    <span class="hero-eyebrow">CLAUDE CODE WORKSHOP</span>
-    <h1 class="hero-title">
-      AIが、あなたの<br>
-      <span class="accent">代わりに働く</span>時代へ。
-    </h1>
-    <p class="hero-desc">
-      クロコ（Claude Code）は、指示するだけで<br>
-      コードを書き、ファイルを操作し、仕事を完了させる<br>
-      <strong>エージェント型AI</strong>です。
-    </p>
-    <div class="hero-btns">
-      <a href="/precheck" class="btn-primary">事前準備チェックを始める</a>
-      <a href="/faq" class="btn-secondary">FAQ を見る</a>
-    </div>
+  <img class="hero-character" src="/images/kuroko.png" alt="クロコ" onerror="this.src='/images/assistant.png'">
+  <div class="speech-bubble">
+    こんにちは！<strong>クロコ</strong>の準備を<br>一緒に進めましょう！
   </div>
-  <div class="hero-image">
-    <div class="bubble-wrap">
-      <div class="speech-bubble">
-        こんにちは！<br>一緒に準備しましょう！
-      </div>
-      <img src="/images/kuroko.png" alt="クロコ" onerror="this.src='/images/assistant.png'">
-    </div>
+  <div class="hero-intro">
+    <strong>クロコ</strong>とは、エージェント型AIの <strong>Claude Code</strong>（デスクトップアプリ版）のことです。<br>
+    従来のチャット型AIとは違い、<strong>労働を代替してくれるAI</strong>です。<br>
+    産業革命とも言われるこの変化を、一緒に体験しましょう。
   </div>
 </div>
 
-<!-- What is クロコ -->
-<div class="section">
-  <div class="section-title">クロコとは？</div>
-  <div class="what-cards">
-    <div class="what-card">
-      <div class="what-card-icon">🤖</div>
-      <div class="what-card-title">エージェント型AI</div>
-      <div class="what-card-desc">従来のチャット型AIとは違い、あなたの指示を受けて自律的に作業を進めます。「これをやって」と頼むだけでOK。</div>
-    </div>
-    <div class="what-card">
-      <div class="what-card-icon">💻</div>
-      <div class="what-card-title">デスクトップアプリ版</div>
-      <div class="what-card-desc">Claude Code のデスクトップアプリ版です。ファイル操作・コード生成・検索など、PCの作業を代わりにこなします。</div>
-    </div>
-    <div class="what-card">
-      <div class="what-card-icon">🏭</div>
-      <div class="what-card-title">産業革命レベルの変化</div>
-      <div class="what-card-desc">「AIに仕事を頼む」時代が来ました。使いこなせる人と使えない人で、圧倒的な差が生まれる時代です。</div>
-    </div>
-  </div>
-</div>
+<!-- Menu -->
+<div class="menu-section">
+  <div class="menu-label">やることメニュー</div>
+  <div class="menu-grid">
 
-<!-- Excitement -->
-<div class="section">
-  <div class="excitement">
-    <div class="excitement-label">WHY KUROKO?</div>
-    <h2 class="excitement-title">
-      あなたの働き方が、<br><span class="accent">今日から変わる。</span>
-    </h2>
-    <p class="excitement-desc">
-      クロコは、プログラミングの知識がなくても使えます。<br>
-      「このデータをグラフにして」「メールの文章を直して」<br>
-      日本語で頼むだけで、クロコが代わりに動きます。<br><br>
-      このオフ会では、クロコを使いこなすための<br>
-      <strong>最初の一歩</strong>を、一緒に踏み出します。
-    </p>
-    <a href="/precheck" class="btn-primary">事前準備を始める →</a>
-  </div>
-</div>
+    <a href="/precheck" class="menu-card">
+      <div class="menu-card-icon">✅</div>
+      <span class="menu-card-badge badge-free">順不同</span>
+      <div class="menu-card-title">事前準備</div>
+      <div class="menu-card-desc">WiFi・OS・クレカなど、当日までに確認しておく準備項目です。好きな順番で進められます。</div>
+    </a>
 
-<!-- Navigation cards -->
-<div class="section">
-  <div class="section-title">メニュー</div>
-  <div class="nav-cards">
-    <a href="/precheck" class="nav-card">
-      <div class="nav-card-icon">✅</div>
-      <div class="nav-card-title">事前準備チェックリスト</div>
-      <div class="nav-card-desc">当日までに完了しておく準備項目をチェック。WiFi・OS・クレカなど必要なものを確認しましょう。</div>
-      <div class="nav-card-arrow">チェックを始める →</div>
+    <a href="/faq" class="menu-card">
+      <div class="menu-card-icon">💬</div>
+      <div class="menu-card-title">FAQ</div>
+      <div class="menu-card-desc">クロコに関するよくある質問と答えをまとめています。困ったときはここを確認。</div>
     </a>
-    <a href="/faq" class="nav-card">
-      <div class="nav-card-icon">💬</div>
-      <div class="nav-card-title">よくある質問 FAQ</div>
-      <div class="nav-card-desc">クロコに関するよくある質問と答えをまとめています。困ったらまずここを確認。</div>
-      <div class="nav-card-arrow">FAQを見る →</div>
+
+    <a href="#" class="menu-card" style="opacity:0.5; pointer-events:none;">
+      <div class="menu-card-icon">📋</div>
+      <span class="menu-card-badge badge-ordered">順番にやる</span>
+      <div class="menu-card-title">インストール手順</div>
+      <div class="menu-card-desc">当日、ステップに沿ってクロコをインストールします。順番通りに進めてください。</div>
     </a>
-    <a href="https://libecity.com/room_list?room_id=fIpTpUrfiHjn6aHN79gR" target="_blank" class="nav-card">
-      <div class="nav-card-icon">💬</div>
-      <div class="nav-card-title">オフ会チャット</div>
-      <div class="nav-card-desc">リベシティのオフ会チャットルームです。参加者同士で情報交換しましょう。</div>
-      <div class="nav-card-arrow">チャットに参加する →</div>
+
+    <a href="#" class="menu-card" style="opacity:0.5; pointer-events:none;">
+      <div class="menu-card-icon">🚀</div>
+      <div class="menu-card-title">動作確認プロンプト</div>
+      <div class="menu-card-desc">インストール後、パソコンのファイル整理をクロコにやってもらいます。</div>
     </a>
+
   </div>
 </div>
 

@@ -336,6 +336,86 @@
       color: var(--subtext);
       grid-column: 1 / -1;
     }
+
+    /* Auth */
+    .login-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: var(--primary-dark); }
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar { width: 26px; height: 26px; border-radius: 50%; }
+    .user-name { font-size: 13px; font-weight: 600; }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--subtext);
+      font-family: inherit;
+    }
+    .logout-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+
+    /* Card vote */
+    .card-vote {
+      font-size: 12px;
+      color: var(--subtext);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Modal vote */
+    .modal-vote {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .vote-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--subtext);
+    }
+    .vote-btns { display: flex; gap: 12px; }
+    .vote-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid var(--border);
+      border-radius: 99px;
+      padding: 10px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .vote-btn:hover { border-color: var(--primary); }
+    .vote-btn.good.active { background: #e8f8ee; border-color: #27ae60; color: #27ae60; }
+    .vote-btn.bad.active { background: #fde8e8; border-color: #e74c3c; color: #e74c3c; }
+    .vote-count { font-size: 16px; font-weight: 800; }
+    .vote-login {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--subtext);
+    }
   </style>
 </head>
 <body>
