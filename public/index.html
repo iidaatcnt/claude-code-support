@@ -54,7 +54,36 @@
       transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--primary-dark); }
-    .header-nav a.active { color: var(--primary-dark); }
+    .header-nav a.active { color: var(--primary-dark); border-bottom: 2px solid var(--primary); padding-bottom: 1px; }
+
+    /* Auth */
+    .login-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .login-btn:hover { background: var(--primary-dark); }
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--subtext);
+      font-family: inherit;
+    }
+    .logout-btn:hover { border-color: #e74c3c; color: #e74c3c; }
 
     /* Hero — compact, character-led */
     .hero {
@@ -218,8 +247,12 @@
 <div class="header">
   <a href="/" class="header-logo">Claude <span>Code</span> サポート</a>
   <nav class="header-nav">
-    <a href="/precheck">事前準備</a>
+    <a href="/" class="active">トップ</a>
     <a href="/faq">FAQ</a>
+    <a href="/precheck">事前準備</a>
+    <div id="authArea">
+      <button class="login-btn" id="loginBtn">Googleでログイン</button>
+    </div>
   </nav>
 </div>
 
@@ -273,6 +306,43 @@
 <div class="footer">
   © 2026 Claude Code サポートサイト
 </div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const app = initializeApp({
+    apiKey: "AIzaSyDBG1tAKgcjBbht5YYxWdQssiWMlB7yRIc",
+    authDomain: "claude-code-support.firebaseapp.com",
+    projectId: "claude-code-support",
+    storageBucket: "claude-code-support.firebasestorage.app",
+    messagingSenderId: "819245008964",
+    appId: "1:819245008964:web:ead21e5842189d1506d411"
+  });
+  const auth = getAuth(app);
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    const authArea = document.getElementById('authArea');
+    if (user) {
+      authArea.innerHTML = `
+        <div class="user-info">
+          ${user.photoURL ? `<img class="user-avatar" src="${user.photoURL}">` : ''}
+          <span class="user-name">${user.displayName || user.email}</span>
+          <button class="logout-btn" id="logoutBtn">ログアウト</button>
+        </div>`;
+      document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+    } else {
+      authArea.innerHTML = `<button class="login-btn" id="loginBtn">Googleでログイン</button>`;
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, new GoogleAuthProvider());
+      });
+    }
+  });
+</script>
 
 </body>
 </html>

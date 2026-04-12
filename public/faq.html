@@ -45,7 +45,7 @@
       transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--primary-dark); }
-    .header-nav a.active { color: var(--primary-dark); }
+    .header-nav a.active { color: var(--primary-dark); border-bottom: 2px solid var(--primary); padding-bottom: 1px; }
 
     /* Main */
     .main { max-width: 860px; margin: 0 auto; padding: 24px 20px; }
@@ -424,8 +424,9 @@
 <div class="header">
   <a href="/" class="header-logo">Claude <span>Code</span> サポート</a>
   <nav class="header-nav">
-    <a href="/precheck">事前準備</a>
+    <a href="/">トップ</a>
     <a href="/faq" class="active">FAQ</a>
+    <a href="/precheck">事前準備</a>
     <div id="authArea">
       <button class="login-btn" id="loginBtn">Googleでログイン</button>
     </div>

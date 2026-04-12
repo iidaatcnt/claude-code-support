@@ -49,7 +49,7 @@
     .header-nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
     .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s; }
     .header-nav a:hover { color: var(--primary-dark); }
-    .header-nav a.active { color: var(--primary-dark); }
+    .header-nav a.active { color: var(--primary-dark); border-bottom: 2px solid var(--primary); padding-bottom: 1px; }
 
     /* Auth */
     .login-btn {
@@ -620,8 +620,9 @@
 <div class="header">
   <a href="/" class="header-logo">Claude <span>Code</span> サポート</a>
   <nav class="header-nav">
-    <a href="/precheck" class="active">事前準備</a>
+    <a href="/">トップ</a>
     <a href="/faq">FAQ</a>
+    <a href="/precheck" class="active">事前準備</a>
     <span class="sync-badge" id="syncBadge" style="display:none">☁ 同期済み</span>
     <div id="authArea">
       <button class="login-btn" id="loginBtn">Googleでログイン</button>

@@ -36,7 +36,7 @@
       align-items: center;
       gap: 12px;
     }
-    .header-logo { font-size: 18px; font-weight: 800; }
+    .header-logo { font-size: 18px; font-weight: 800; text-decoration: none; color: var(--text); }
     .header-logo span { color: var(--primary); }
     .header-badge {
       font-size: 11px;
@@ -46,9 +46,39 @@
       padding: 2px 8px;
       border-radius: 4px;
     }
-    .header-nav { margin-left: auto; display: flex; gap: 16px; }
-    .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; }
+    .header-nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s; }
     .header-nav a:hover { color: var(--primary-dark); }
+    .header-nav a.active { color: var(--primary-dark); border-bottom: 2px solid var(--primary); padding-bottom: 1px; }
+
+    /* Auth */
+    .login-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .login-btn:hover { background: var(--primary-dark); }
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--subtext);
+      font-family: inherit;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
 
     /* Layout */
     .layout {
@@ -419,11 +449,15 @@
 <body>
 
 <div class="header">
-  <a href="/" class="header-logo" style="text-decoration:none;color:var(--text)">Claude <span>Code</span> サポート</a>
+  <a href="/" class="header-logo">Claude <span>Code</span> サポート</a>
   <span class="header-badge">管理画面</span>
   <nav class="header-nav">
-    <a href="/precheck">事前準備</a>
+    <a href="/">トップ</a>
     <a href="/faq">FAQ</a>
+    <a href="/precheck">事前準備</a>
+    <div id="authArea">
+      <button class="login-btn" id="loginBtn">Googleでログイン</button>
+    </div>
   </nav>
 </div>
 
@@ -456,6 +490,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
   import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
@@ -469,8 +504,32 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
+
+  // ── Auth（ヘッダー表示） ──────────────────────
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    const authArea = document.getElementById('authArea');
+    if (user) {
+      authArea.innerHTML = `
+        <div class="user-info">
+          ${user.photoURL ? `<img class="user-avatar" src="${user.photoURL}">` : ''}
+          <span class="user-name">${user.displayName || user.email}</span>
+          <button class="logout-btn" id="logoutBtn">ログアウト</button>
+        </div>`;
+      document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+    } else {
+      authArea.innerHTML = `<button class="login-btn" id="loginBtn">Googleでログイン</button>`;
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, new GoogleAuthProvider());
+      });
+    }
+  });
 
   const SERIES_OPTIONS = [
     'クロコのよくある質問',
