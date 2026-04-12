@@ -423,8 +423,12 @@
 <div class="header">
   <div class="header-logo">Claude <span>Code</span></div>
   <nav class="header-nav">
-    <a href="/">セルフチェック</a>
-    <a href="/faq.html" class="active">FAQ</a>
+    <a href="/">トップ</a>
+    <a href="/precheck">事前準備</a>
+    <a href="/faq" class="active">FAQ</a>
+    <div id="authArea">
+      <button class="login-btn" id="loginBtn">Googleでログイン</button>
+    </div>
   </nav>
 </div>
 
@@ -456,12 +460,14 @@
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
+    <div class="modal-vote" id="modalVote"></div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyDBG1tAKgcjBbht5YYxWdQssiWMlB7yRIc",
@@ -473,38 +479,83 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getFirestore(app);
 
+  let currentUser = null;
   let allFaqs = [];
+  let allVotes = [];     // { id, faqId, userId, vote, userName }
   let activeCategory = 'all';
   let activeTag = null;
   let searchQuery = '';
+  let currentModalFaqId = null;
+
+  // ── Auth ──────────────────────────────────
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const authArea = document.getElementById('authArea');
+    if (user) {
+      authArea.innerHTML = `
+        <div class="user-info">
+          ${user.photoURL ? `<img class="user-avatar" src="${user.photoURL}">` : ''}
+          <span class="user-name">${user.displayName || user.email}</span>
+          <button class="logout-btn" id="logoutBtn">ログアウト</button>
+        </div>`;
+      document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+    } else {
+      authArea.innerHTML = `<button class="login-btn" id="loginBtn">Googleでログイン</button>`;
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, new GoogleAuthProvider());
+      });
+    }
+    // モーダルが開いていたら投票UIを更新
+    if (currentModalFaqId) renderVoteUI(currentModalFaqId);
+  });
 
   // ── データ読み込み ──────────────────────────
   async function loadFAQs() {
-    const q = query(collection(db, 'faq'), orderBy('updatedAt', 'desc'));
-    const snap = await getDocs(q);
-    allFaqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const [faqSnap, voteSnap] = await Promise.all([
+      getDocs(query(collection(db, 'faq'), orderBy('updatedAt', 'desc'))),
+      getDocs(collection(db, 'faqVotes'))
+    ]);
+    allFaqs = faqSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allVotes = voteSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     buildUI();
     render();
   }
 
+  function getVoteCounts(faqId) {
+    const votes = allVotes.filter(v => v.faqId === faqId);
+    return {
+      good: votes.filter(v => v.vote === 'good').length,
+      bad: votes.filter(v => v.vote === 'bad').length,
+      voters: votes.filter(v => v.vote === 'good').map(v => v.userName || '匿名').slice(0, 5)
+    };
+  }
+
+  function getMyVote(faqId) {
+    if (!currentUser) return null;
+    return allVotes.find(v => v.faqId === faqId && v.userId === currentUser.uid) || null;
+  }
+
   // ── カテゴリ・タグ生成 ──────────────────────
   function buildUI() {
-    // カテゴリタブ
     const categories = ['all', ...new Set(allFaqs.map(f => f.series).filter(Boolean))];
     const tabsEl = document.getElementById('categoryTabs');
     tabsEl.innerHTML = categories.map(c => `
-      <button class="cat-tab ${c === 'all' ? 'active' : ''}"
+      <button class="cat-tab ${c === activeCategory ? 'active' : ''}"
         onclick="setCategory('${c}')">${c === 'all' ? 'すべて' : c}</button>
     `).join('');
 
-    // タグクラウド
     const tagMap = {};
     allFaqs.forEach(f => (f.tags || []).forEach(t => { tagMap[t] = (tagMap[t] || 0) + 1; }));
     const tagCloud = document.getElementById('tagCloud');
     tagCloud.innerHTML = Object.keys(tagMap).map(t => `
-      <span class="tag-chip" onclick="setTag('${t}')">#${t}（${tagMap[t]}）</span>
+      <span class="tag-chip ${activeTag === t ? 'active' : ''}" onclick="setTag('${t}')">#${t}（${tagMap[t]}）</span>
     `).join('');
   }
 
@@ -539,6 +590,8 @@
       const excerpt = (f.blocks || []).find(b => b.type === 'text')?.content?.slice(0, 60) || '';
       const date = f.updatedAt ? new Date(f.updatedAt.seconds ? f.updatedAt.seconds * 1000 : f.updatedAt).toLocaleDateString('ja-JP') : '';
       const tags = (f.tags || []).map(t => `<span class="card-tag">#${t}</span>`).join('');
+      const counts = getVoteCounts(f.id);
+      const voteHtml = counts.good > 0 ? `<div class="card-vote">👍 ${counts.good}</div>` : '';
       return `
         <div class="faq-card" onclick="openModal('${f.id}')">
           <div class="card-series">${f.series || '未分類'}</div>
@@ -546,6 +599,7 @@
           ${excerpt ? `<div class="card-excerpt">${excerpt}</div>` : ''}
           <div class="card-footer">
             <div class="card-tags">${tags}</div>
+            ${voteHtml}
             <div class="card-date">${date}</div>
           </div>
         </div>`;
@@ -556,6 +610,7 @@
   window.openModal = function(id) {
     const f = allFaqs.find(x => x.id === id);
     if (!f) return;
+    currentModalFaqId = id;
 
     document.getElementById('modalSeries').textContent = f.series || '';
     document.getElementById('modalTitle').textContent = f.title || '';
@@ -572,8 +627,74 @@
         return '';
       }).join('');
 
+    renderVoteUI(id);
+
     document.getElementById('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
+  };
+
+  // ── 投票UI ──────────────────────────────
+  function renderVoteUI(faqId) {
+    const voteEl = document.getElementById('modalVote');
+    const counts = getVoteCounts(faqId);
+    const myVote = getMyVote(faqId);
+
+    if (!currentUser) {
+      voteEl.innerHTML = `
+        <div class="vote-label">この記事は役に立ちましたか？</div>
+        <div class="vote-login">
+          <span>評価するにはログインが必要です</span>
+          <button class="login-btn" onclick="doLogin()">ログイン</button>
+        </div>
+        <div class="vote-btns">
+          <div class="vote-btn good"><span>👍</span><span class="vote-count">${counts.good}</span></div>
+          <div class="vote-btn bad"><span>👎</span><span class="vote-count">${counts.bad}</span></div>
+        </div>`;
+      return;
+    }
+
+    voteEl.innerHTML = `
+      <div class="vote-label">この記事は役に立ちましたか？</div>
+      <div class="vote-btns">
+        <button class="vote-btn good ${myVote?.vote === 'good' ? 'active' : ''}" onclick="castVote('${faqId}','good')">
+          <span>👍</span><span class="vote-count">${counts.good}</span>
+        </button>
+        <button class="vote-btn bad ${myVote?.vote === 'bad' ? 'active' : ''}" onclick="castVote('${faqId}','bad')">
+          <span>👎</span><span class="vote-count">${counts.bad}</span>
+        </button>
+      </div>
+      ${counts.voters.length > 0 ? `<div style="font-size:12px;color:var(--subtext);">👍 ${counts.voters.join('、')}${counts.good > 5 ? ' ほか' : ''}</div>` : ''}`;
+  }
+
+  // ── 投票処理 ──────────────────────────────
+  window.castVote = async function(faqId, vote) {
+    if (!currentUser) return;
+    const voteDocId = `${faqId}_${currentUser.uid}`;
+    const existing = getMyVote(faqId);
+
+    try {
+      if (existing && existing.vote === vote) {
+        // 同じ投票をもう一度 → 取り消し
+        await deleteDoc(doc(db, 'faqVotes', voteDocId));
+        allVotes = allVotes.filter(v => v.id !== voteDocId);
+      } else {
+        // 新規 or 変更
+        const data = {
+          faqId,
+          userId: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email || '匿名',
+          vote,
+          updatedAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, 'faqVotes', voteDocId), data);
+        allVotes = allVotes.filter(v => v.id !== voteDocId);
+        allVotes.push({ id: voteDocId, ...data });
+      }
+      renderVoteUI(faqId);
+      render(); // カード上のカウントも更新
+    } catch(e) {
+      console.error('投票エラー', e);
+    }
   };
 
   window.closeModal = function(e) {
@@ -581,6 +702,7 @@
     if (e && e.currentTarget === document.getElementById('modalOverlay') && e.target !== e.currentTarget) return;
     document.getElementById('modalOverlay').classList.remove('open');
     document.body.style.overflow = '';
+    currentModalFaqId = null;
   };
 
   // ── イベント ──────────────────────────────
@@ -600,16 +722,20 @@
     render();
   };
 
+  window.doLogin = function() {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  };
+
   document.getElementById('searchInput').addEventListener('input', e => {
     searchQuery = e.target.value;
     render();
   });
 
-  // Escキーでモーダルを閉じる
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.getElementById('modalOverlay').classList.remove('open');
       document.body.style.overflow = '';
+      currentModalFaqId = null;
     }
   });
 
