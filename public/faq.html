@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クロコ FAQ | Claude Code サポート</title>
+  <style>
+    :root {
+      --bg: #f4f4f0;
+      --surface: #ffffff;
+      --surface2: #f8f8f5;
+      --primary: #f5a623;
+      --primary-dark: #e8941a;
+      --text: #1a1a1a;
+      --subtext: #888888;
+      --border: #e8e8e4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--primary);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo { font-size: 18px; font-weight: 800; color: var(--text); }
+    .header-logo span { color: var(--primary); }
+    .header-nav { margin-left: auto; display: flex; gap: 16px; }
+    .header-nav a {
+      color: var(--subtext);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .header-nav a:hover { color: var(--primary-dark); }
+    .header-nav a.active { color: var(--primary-dark); }
+
+    /* Main */
+    .main { max-width: 860px; margin: 0 auto; padding: 24px 20px; }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      color: var(--subtext);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px 12px 42px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--subtext);
+      font-size: 16px;
+    }
+
+    /* Category tabs */
+    .category-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .cat-tab {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--subtext);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .cat-tab:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .cat-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* Tag cloud */
+    .tag-cloud {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .tag-chip {
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--subtext);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tag-chip:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .tag-chip.active {
+      background: #fff3d6;
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    /* Results info */
+    .results-info {
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 12px;
+    }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .faq-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .faq-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(245,166,35,0.15);
+      transform: translateY(-2px);
+    }
+
+    .card-series {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      background: #fff3d6;
+      border-radius: 4px;
+      padding: 2px 8px;
+      display: inline-block;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .card-excerpt {
+      font-size: 13px;
+      color: var(--subtext);
+      line-height: 1.6;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .card-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .card-tag {
+      font-size: 11px;
+      color: var(--subtext);
+      background: var(--bg);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .card-date {
+      font-size: 11px;
+      color: var(--subtext);
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--subtext);
+      grid-column: 1 / -1;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 15px; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 680px;
+      margin: auto;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 1;
+    }
+    .modal-series {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .modal-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .modal-tag {
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 2px 10px;
+      color: var(--subtext);
+    }
+    .modal-date {
+      font-size: 12px;
+      color: var(--subtext);
+      margin-left: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--subtext);
+      line-height: 1;
+      padding: 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .block-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #333;
+      white-space: pre-wrap;
+    }
+
+    .block-image img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--subtext);
+      grid-column: 1 / -1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Claude <span>Code</span></div>
+  <nav class="header-nav">
+    <a href="/">セルフチェック</a>
+    <a href="/faq.html" class="active">FAQ</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="page-title">よくある質問 FAQ</div>
+  <div class="page-subtitle">クロコ（Claude Code）に関する質問と答えをまとめています</div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="searchInput" placeholder="キーワードで検索...">
+  </div>
+
+  <div class="category-tabs" id="categoryTabs"></div>
+  <div class="tag-cloud" id="tagCloud"></div>
+
+  <div class="results-info" id="resultsInfo"></div>
+  <div class="card-grid" id="cardGrid">
+    <div class="loading">読み込み中...</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-series" id="modalSeries"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDBG1tAKgcjBbht5YYxWdQssiWMlB7yRIc",
+    authDomain: "claude-code-support.firebaseapp.com",
+    projectId: "claude-code-support",
+    storageBucket: "claude-code-support.firebasestorage.app",
+    messagingSenderId: "819245008964",
+    appId: "1:819245008964:web:ead21e5842189d1506d411"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let allFaqs = [];
+  let activeCategory = 'all';
+  let activeTag = null;
+  let searchQuery = '';
+
+  // ── データ読み込み ──────────────────────────
+  async function loadFAQs() {
+    const q = query(collection(db, 'faq'), orderBy('updatedAt', 'desc'));
+    const snap = await getDocs(q);
+    allFaqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    buildUI();
+    render();
+  }
+
+  // ── カテゴリ・タグ生成 ──────────────────────
+  function buildUI() {
+    // カテゴリタブ
+    const categories = ['all', ...new Set(allFaqs.map(f => f.series).filter(Boolean))];
+    const tabsEl = document.getElementById('categoryTabs');
+    tabsEl.innerHTML = categories.map(c => `
+      <button class="cat-tab ${c === 'all' ? 'active' : ''}"
+        onclick="setCategory('${c}')">${c === 'all' ? 'すべて' : c}</button>
+    `).join('');
+
+    // タグクラウド
+    const tagMap = {};
+    allFaqs.forEach(f => (f.tags || []).forEach(t => { tagMap[t] = (tagMap[t] || 0) + 1; }));
+    const tagCloud = document.getElementById('tagCloud');
+    tagCloud.innerHTML = Object.keys(tagMap).map(t => `
+      <span class="tag-chip" onclick="setTag('${t}')">#${t}（${tagMap[t]}）</span>
+    `).join('');
+  }
+
+  // ── フィルタリング ──────────────────────────
+  function filtered() {
+    return allFaqs.filter(f => {
+      const matchCat = activeCategory === 'all' || f.series === activeCategory;
+      const matchTag = !activeTag || (f.tags || []).includes(activeTag);
+      const q = searchQuery.toLowerCase();
+      const bodyText = (f.blocks || []).filter(b => b.type === 'text').map(b => b.content).join(' ');
+      const matchSearch = !q ||
+        (f.title || '').toLowerCase().includes(q) ||
+        bodyText.toLowerCase().includes(q) ||
+        (f.tags || []).some(t => t.toLowerCase().includes(q));
+      return matchCat && matchTag && matchSearch;
+    });
+  }
+
+  // ── レンダリング ──────────────────────────
+  function render() {
+    const list = filtered();
+    const grid = document.getElementById('cardGrid');
+    document.getElementById('resultsInfo').textContent =
+      `${list.length} 件${searchQuery || activeTag ? '（絞り込み中）' : ''}`;
+
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>該当する記事が見つかりませんでした</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(f => {
+      const excerpt = (f.blocks || []).find(b => b.type === 'text')?.content?.slice(0, 60) || '';
+      const date = f.updatedAt ? new Date(f.updatedAt.seconds ? f.updatedAt.seconds * 1000 : f.updatedAt).toLocaleDateString('ja-JP') : '';
+      const tags = (f.tags || []).map(t => `<span class="card-tag">#${t}</span>`).join('');
+      return `
+        <div class="faq-card" onclick="openModal('${f.id}')">
+          <div class="card-series">${f.series || '未分類'}</div>
+          <div class="card-title">${f.title || ''}</div>
+          ${excerpt ? `<div class="card-excerpt">${excerpt}</div>` : ''}
+          <div class="card-footer">
+            <div class="card-tags">${tags}</div>
+            <div class="card-date">${date}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── モーダル ──────────────────────────────
+  window.openModal = function(id) {
+    const f = allFaqs.find(x => x.id === id);
+    if (!f) return;
+
+    document.getElementById('modalSeries').textContent = f.series || '';
+    document.getElementById('modalTitle').textContent = f.title || '';
+
+    const date = f.updatedAt ? new Date(f.updatedAt.seconds ? f.updatedAt.seconds * 1000 : f.updatedAt).toLocaleDateString('ja-JP') : '';
+    document.getElementById('modalMeta').innerHTML =
+      (f.tags || []).map(t => `<span class="modal-tag">#${t}</span>`).join('') +
+      (date ? `<span class="modal-date">更新：${date}</span>` : '');
+
+    document.getElementById('modalBody').innerHTML =
+      (f.blocks || []).map(b => {
+        if (b.type === 'text') return `<div class="block-text">${b.content}</div>`;
+        if (b.type === 'image') return `<div class="block-image"><img src="${b.url}" loading="lazy"></div>`;
+        return '';
+      }).join('');
+
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function(e) {
+    if (e && e.target !== document.getElementById('modalOverlay') && e.type !== 'click') return;
+    if (e && e.currentTarget === document.getElementById('modalOverlay') && e.target !== e.currentTarget) return;
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // ── イベント ──────────────────────────────
+  window.setCategory = function(cat) {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-tab').forEach(el => {
+      el.classList.toggle('active', el.textContent === (cat === 'all' ? 'すべて' : cat));
+    });
+    render();
+  };
+
+  window.setTag = function(tag) {
+    activeTag = activeTag === tag ? null : tag;
+    document.querySelectorAll('.tag-chip').forEach(el => {
+      el.classList.toggle('active', el.textContent.startsWith(`#${tag}`));
+    });
+    render();
+  };
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    render();
+  });
+
+  // Escキーでモーダルを閉じる
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  loadFAQs();
+</script>
+</body>
+</html>
