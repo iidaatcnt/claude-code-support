@@ -846,10 +846,13 @@
   const macItems = [
     {
       id: 'macos_update',
-      title: 'macOS Tahoe（26.4）へアップデート',
+      title: 'macOSのバージョン確認・アップデート',
       important: true,
-      description: 'Claude Code は最新の macOS が必要です。最新版は「macOS Tahoe 26.4」です。\nアップデートには30分〜1時間かかるため、当日ではなく事前に済ませてください。\n\n確認場所：システム設定 → 一般 → ソフトウェアアップデート',
-      links: []
+      description: '【ステップ①】現在のバージョンを確認する\n左上のアップルメニュー（）→「このMacについて」でバージョンを確認してください。\n\n最新版は「macOS Tahoe 26.4」です。それ以外の場合はアップデートが必要です。\n\n【ステップ②】アップデートが必要な場合\nシステム設定 → 一般 → ソフトウェアアップデート\nアップデートには30分〜1時間かかるため、当日ではなく事前に済ませてください。',
+      links: [],
+      type: 'select',
+      selectId: 'select_macos_version',
+      options: ['選択してください', 'Tahoe 26.x（最新・OK）', 'それ以外（アップデートが必要）']
     },
     {
       id: 'mac_screenshot',
@@ -884,14 +887,14 @@
       id: 'git_mac_check',
       title: 'Gitのインストール確認（Mac）',
       optional: true,
-      description: 'ターミナルを開いて以下を入力してください：\n\ngit --version\n\nバージョン番号（例：git version 2.39.0）が表示されればインストール済みです。\n「command not found」と表示された場合はインストールが必要です。',
+      description: '【ターミナルの起動方法】\nSpotlight（⌘ + スペース）を開いて「ターミナル」と入力 → Enterで起動\n\n【確認コマンド】\ngit --version\n\nバージョン番号（例：git version 2.39.0）が表示されればインストール済みです。\n「command not found」と表示された場合はインストールが必要です。',
       links: []
     },
     {
       id: 'git_mac_install',
       title: 'Gitのインストール（Mac）',
       optional: true,
-      description: 'Gitがインストールされていない場合は以下の方法でインストールしてください。\n\n【方法①】Xcode コマンドラインツール（推奨・無料）\nターミナルで以下を実行：\nxcode-select --install\n画面の指示に従ってインストール完了後、再度「git --version」で確認してください。\n\n【方法②】Homebrew 経由\nbrew install git',
+      description: 'Gitがインストールされていない場合は以下の手順でインストールしてください。\n\n【Xcode コマンドラインツール（推奨・無料）】\nターミナルで以下を実行：\nxcode-select --install\n\n画面にインストールの確認ダイアログが表示されるので「インストール」をクリック。\n完了後、再度「git --version」で確認してください。',
       links: []
     }
   ];
