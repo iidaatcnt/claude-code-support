@@ -130,27 +130,47 @@
 
     .os-btn {
       flex: 1;
-      max-width: 200px;
-      padding: 28px 16px;
-      background: var(--surface2);
-      border: 2px solid var(--border);
-      border-radius: 16px;
+      max-width: 260px;
+      padding: 36px 20px;
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 20px;
       color: var(--text);
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 22px;
+      font-weight: 800;
       cursor: pointer;
       transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
 
     .os-btn:hover {
       border-color: var(--primary);
       background: #fff3d6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(245,166,35,0.2);
     }
 
     .os-icon {
-      font-size: 44px;
+      font-size: 52px;
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .os-btn-sub {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--subtext);
+      margin-top: 6px;
+    }
+
+    .os-or {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--subtext);
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
     }
 
     /* Checklist Container */
@@ -191,42 +211,67 @@
       color: white;
     }
 
-    /* Progress */
+    /* Progress circle */
     .progress-section {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
+      border-radius: 16px;
+      padding: 24px;
       margin-bottom: 16px;
-    }
-
-    .progress-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      justify-content: center;
     }
 
-    .progress-label { font-size: 14px; color: var(--subtext); }
+    .progress-circle-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .progress-circle-wrap svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 10;
+    }
+
+    .progress-ring-fill {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.6s ease;
+    }
+
+    .progress-ring-fill.complete {
+      stroke: #27ae60;
+    }
+
+    .progress-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
     .progress-count {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary-dark);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1;
     }
 
-    .progress-bar-bg {
-      background: var(--border);
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      background: var(--primary);
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.4s ease;
+    .progress-label {
+      font-size: 11px;
+      color: var(--subtext);
+      font-weight: 600;
+      margin-top: 4px;
     }
 
     /* Controls */
@@ -595,9 +640,12 @@
   <div class="os-buttons">
     <button class="os-btn" onclick="selectOS('mac')">
       <span class="os-icon"></span>Mac
+      <span class="os-btn-sub">Apple シリコン / Intel</span>
     </button>
+    <span class="os-or">or</span>
     <button class="os-btn" onclick="selectOS('win')">
       <span class="os-icon">🪟</span>Windows
+      <span class="os-btn-sub">x64 / ARM</span>
     </button>
   </div>
 </div>
@@ -611,12 +659,15 @@
   </div>
 
   <div class="progress-section">
-    <div class="progress-header">
-      <span class="progress-label">事前準備の進捗</span>
-      <span class="progress-count" id="progressCount">0 / 0</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    <div class="progress-circle-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle class="progress-ring-bg" cx="60" cy="60" r="50"/>
+        <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+      </svg>
+      <div class="progress-center">
+        <span class="progress-count" id="progressCount">0/0</span>
+        <span class="progress-label">事前準備</span>
+      </div>
     </div>
   </div>
 
@@ -1091,8 +1142,16 @@
     const total = all.length;
     const done = all.filter(i => checked[i.id]).length;
     const requiredDone = required.filter(i => checked[i.id]).length;
-    document.getElementById('progressCount').textContent = done + ' / ' + total;
-    document.getElementById('progressBar').style.width = (total ? (done / total * 100) : 0) + '%';
+
+    // 円グラフ更新
+    const circumference = 314.16; // 2 * π * 50
+    const pct = total ? done / total : 0;
+    const offset = circumference * (1 - pct);
+    const ring = document.getElementById('progressRing');
+    ring.style.strokeDashoffset = offset;
+    ring.classList.toggle('complete', done === total && total > 0);
+    document.getElementById('progressCount').textContent = done + '/' + total;
+
     // 必須項目がすべて完了で完了バナー表示
     document.getElementById('completionBanner').classList.toggle('visible', required.length > 0 && requiredDone === required.length);
   }
