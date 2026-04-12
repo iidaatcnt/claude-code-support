@@ -50,9 +50,58 @@
       font-size: 13px;
     }
 
-    .header-nav { margin-left: auto; display: flex; gap: 16px; }
+    .header-nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
     .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; }
     .header-nav a:hover { color: var(--primary-dark); }
+
+    /* Auth */
+    .login-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .login-btn:hover { background: var(--primary-dark); }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--subtext);
+      font-family: inherit;
+    }
+    .logout-btn:hover { border-color: var(--warning); color: var(--warning); }
+
+    .sync-badge {
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 600;
+    }
 
     /* OS Selection */
     .os-selection {
@@ -451,6 +500,47 @@
       cursor: pointer;
     }
 
+    /* Libe name input */
+    .libe-name-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 16px;
+    }
+    .libe-name-input:focus { border-color: var(--primary); }
+
+    .btn-save {
+      flex: 1;
+      padding: 12px;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-save:hover { background: var(--primary-dark); }
+
+    .user-name-btn {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      text-decoration: underline dotted var(--subtext);
+    }
+    .user-name-btn:hover { color: var(--primary-dark); }
+
     .btn-reset {
       flex: 1;
       padding: 12px;
@@ -473,6 +563,10 @@
   <nav class="header-nav">
     <a href="/">トップ</a>
     <a href="/faq">FAQ</a>
+    <span class="sync-badge" id="syncBadge" style="display:none">☁ 同期済み</span>
+    <div id="authArea">
+      <button class="login-btn" id="loginBtn">Googleでログイン</button>
+    </div>
   </nav>
 </div>
 
@@ -526,6 +620,19 @@
 
 </div>
 
+<!-- Libe Name Modal -->
+<div class="modal-overlay" id="libeNameModal">
+  <div class="modal">
+    <h3>リベネームを入力</h3>
+    <p>リベシティでのニックネームを入力してください。<br>後から変更できます。</p>
+    <input class="libe-name-input" id="libeNameInput" type="text" placeholder="例：たろうさん" maxlength="20">
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="libeNameSkip">スキップ</button>
+      <button class="btn-save" id="libeNameSave">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- Reset Modal -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal">
@@ -538,7 +645,123 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDBG1tAKgcjBbht5YYxWdQssiWMlB7yRIc",
+    authDomain: "claude-code-support.firebaseapp.com",
+    projectId: "claude-code-support",
+    storageBucket: "claude-code-support.firebasestorage.app",
+    messagingSenderId: "819245008964",
+    appId: "1:819245008964:web:ead21e5842189d1506d411"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let currentUser = null;
+  let libeName = '';
+
+  // ── Auth UI ────────────────────────────────
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    const authArea = document.getElementById('authArea');
+    const syncBadge = document.getElementById('syncBadge');
+
+    if (user) {
+      // Firestoreからデータ読み込み
+      const userData = await loadFromFirestore();
+
+      // リベネーム未設定なら入力モーダルを表示
+      if (!userData?.libeName) {
+        showLibeNameModal();
+      }
+
+      renderUserInfo();
+      syncBadge.style.display = '';
+    } else {
+      authArea.innerHTML = `<button class="login-btn" id="loginBtn">Googleでログイン</button>`;
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, new GoogleAuthProvider());
+      });
+      syncBadge.style.display = 'none';
+      libeName = '';
+    }
+  });
+
+  function renderUserInfo() {
+    const authArea = document.getElementById('authArea');
+    const displayName = libeName || currentUser?.displayName || currentUser?.email || '';
+    authArea.innerHTML = `
+      <div class="user-info">
+        ${currentUser?.photoURL ? `<img class="user-avatar" src="${currentUser.photoURL}">` : ''}
+        <button class="user-name-btn" id="editLibeNameBtn">${displayName}</button>
+        <button class="logout-btn" id="logoutBtn">ログアウト</button>
+      </div>`;
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+    document.getElementById('editLibeNameBtn').addEventListener('click', showLibeNameModal);
+  }
+
+  // ── Libe Name Modal ────────────────────────
+  function showLibeNameModal() {
+    document.getElementById('libeNameInput').value = libeName;
+    document.getElementById('libeNameModal').classList.add('visible');
+    setTimeout(() => document.getElementById('libeNameInput').focus(), 100);
+  }
+
+  document.getElementById('libeNameSave').addEventListener('click', async () => {
+    const val = document.getElementById('libeNameInput').value.trim();
+    if (!val) return;
+    libeName = val;
+    document.getElementById('libeNameModal').classList.remove('visible');
+    renderUserInfo();
+    await saveToFirestore();
+  });
+
+  document.getElementById('libeNameSkip').addEventListener('click', () => {
+    document.getElementById('libeNameModal').classList.remove('visible');
+  });
+
+  document.getElementById('libeNameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('libeNameSave').click();
+  });
+
+  // ── Firestore ──────────────────────────────
+  async function loadFromFirestore() {
+    if (!currentUser) return null;
+    try {
+      const snap = await getDoc(doc(db, 'users', currentUser.uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.libeName) libeName = data.libeName;
+        if (data.os) { currentOS = data.os; localStorage.setItem('os', data.os); }
+        if (data.checked) { checked = data.checked; localStorage.setItem('checked', JSON.stringify(data.checked)); }
+        if (currentOS) showChecklist();
+        return data;
+      }
+      return null;
+    } catch(e) { console.error('Firestore読み込みエラー', e); return null; }
+  }
+
+  async function saveToFirestore() {
+    if (!currentUser) return;
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid), {
+        libeName,
+        os: currentOS,
+        checked,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch(e) { console.error('Firestore保存エラー', e); }
+  }
+
   const commonItems = [
     {
       id: 'wifi',
@@ -776,6 +999,7 @@
 
   function save() {
     localStorage.setItem('checked', JSON.stringify(checked));
+    saveToFirestore();
   }
 
   function showResetModal() {
@@ -791,10 +1015,22 @@
     currentOS = null;
     localStorage.removeItem('checked');
     localStorage.removeItem('os');
+    saveToFirestore();
     hideResetModal();
     document.getElementById('checklistContainer').classList.remove('visible');
     document.getElementById('osSelection').style.display = 'block';
   }
+
+  // モジュール内からHTMLのonclick属性で呼べるようwindowに公開
+  window.selectOS = selectOS;
+  window.showOSSelection = showOSSelection;
+  window.toggleExpand = toggleExpand;
+  window.toggleCheck = toggleCheck;
+  window.onSelect = onSelect;
+  window.toggleFilter = toggleFilter;
+  window.showResetModal = showResetModal;
+  window.hideResetModal = hideResetModal;
+  window.resetAll = resetAll;
 
   init();
 </script>
