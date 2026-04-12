@@ -3,20 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Code インストール 事前準備セルフチェック</title>
+  <title>クロコ | Claude Code サポートサイト</title>
   <style>
     :root {
       --bg: #f4f4f0;
       --surface: #ffffff;
-      --surface2: #f8f8f5;
       --primary: #f5a623;
       --primary-dark: #e8941a;
-      --success: #27ae60;
-      --warning: #e74c3c;
       --text: #1a1a1a;
       --subtext: #888888;
       --border: #e8e8e4;
-      --checked-bg: #fffbf0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,919 +28,374 @@
     .header {
       background: var(--surface);
       border-bottom: 2px solid var(--primary);
-      padding: 14px 20px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
-
-    .header-logo {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.3px;
-    }
-
-    .header-logo span {
-      color: var(--primary);
-    }
-
-    .header-subtitle {
+    .header-logo { font-size: 18px; font-weight: 800; }
+    .header-logo span { color: var(--primary); }
+    .header-nav { margin-left: auto; display: flex; gap: 20px; }
+    .header-nav a {
       color: var(--subtext);
+      text-decoration: none;
       font-size: 13px;
-      margin-left: 4px;
-    }
-
-    /* OS Selection */
-    .os-selection {
-      min-height: calc(100vh - 56px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 20px;
-      gap: 32px;
-    }
-
-    /* キャラ＋説明 縦並びエリア */
-    .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      max-width: 360px;
-      width: 100%;
-    }
-
-    .kuroko-img {
-      width: 180px;
-      display: block;
-    }
-
-    .speech-bubble {
-      background: white;
-      color: #333;
-      border-radius: 16px;
-      border-top-left-radius: 4px;
-      padding: 14px 18px;
-      font-size: 14px;
       font-weight: 600;
-      line-height: 1.7;
-      position: relative;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-      margin-top: 8px;
-      width: 100%;
-      text-align: center;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--primary-dark); }
+
+    /* Hero */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 40px;
+      display: flex;
+      align-items: center;
+      gap: 48px;
     }
 
-    .kuroko-about {
-      background: #fff8ee;
-      border: 1px solid #f5d88a;
+    .hero-text { flex: 1; }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--primary-dark);
+      background: #fff3d6;
+      border: 1px solid var(--primary);
+      border-radius: 99px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+    }
+    .hero-title .accent { color: var(--primary); }
+
+    .hero-desc {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 32px;
+    }
+
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
       border-radius: 12px;
-      padding: 14px 16px;
-      line-height: 1.75;
-      font-size: 13px;
-      color: #555;
-      margin-top: 12px;
-      width: 100%;
-    }
-
-    .kuroko-about p { margin-bottom: 5px; }
-    .kuroko-about p:last-child { margin-bottom: 0; }
-
-    .kuroko-about strong { color: var(--primary-dark); }
-
-    /* OS ボタン */
-    .os-prompt {
+      padding: 14px 28px;
       font-size: 15px;
       font-weight: 700;
-      color: var(--text);
-      text-align: center;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-block;
     }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
-    .os-buttons {
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, transform 0.1s;
+      display: inline-block;
+    }
+    .btn-secondary:hover { border-color: var(--primary); transform: translateY(-1px); }
+
+    .hero-image {
+      width: 240px;
+      min-width: 240px;
       display: flex;
-      gap: 16px;
       justify-content: center;
     }
+    .hero-image img {
+      width: 220px;
+      filter: drop-shadow(0 8px 24px rgba(245,166,35,0.25));
+      animation: float 4s ease-in-out infinite;
+    }
 
-    .os-btn {
-      width: 160px;
-      padding: 20px 16px;
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Speech bubble */
+    .bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .speech-bubble {
       background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      color: var(--text);
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      max-width: 200px;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 10px solid transparent;
+      border-top-color: var(--border);
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 9px solid transparent;
+      border-top-color: var(--surface);
+      z-index: 1;
     }
 
-    .os-btn:hover {
-      border-color: var(--primary);
-      background: #fffbf0;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(245,166,35,0.2);
-    }
-
-    .os-icon {
-      font-size: 36px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .os-sub {
-      font-size: 11px;
-      color: var(--subtext);
-      margin-top: 4px;
-      font-weight: 400;
-    }
-
-    /* Checklist Container */
-    .checklist-container {
-      max-width: 700px;
+    /* What is section */
+    .section {
+      max-width: 860px;
       margin: 0 auto;
-      padding: 20px;
-      display: none;
+      padding: 0 24px 60px;
     }
 
-    .checklist-container.visible {
-      display: block;
-    }
-
-    /* OS Tag */
-    .os-change {
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 16px;
     }
-
-    .os-tag {
-      background: #fff3d6;
-      border: 1px solid var(--primary);
-      color: var(--primary-dark);
-      padding: 4px 14px;
-      border-radius: 99px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .change-os-btn {
-      background: none;
-      border: none;
-      color: var(--subtext);
-      font-size: 13px;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .change-os-btn:hover { color: var(--text); }
-
-    /* Progress Donut */
-    .progress-section {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .donut-card {
-      background: white;
-      border: 2px solid #e8c49a;
-      border-radius: 20px;
-      padding: 24px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .donut-wrap {
-      position: relative;
-      width: 140px;
-      height: 140px;
-    }
-
-    .donut-svg {
-      width: 140px;
-      height: 140px;
-      transform: rotate(-90deg);
-    }
-
-    .donut-bg {
-      fill: none;
-      stroke: #e8d5c4;
-      stroke-width: 14;
-    }
-
-    .donut-fill {
-      fill: none;
-      stroke: #c49a7a;
-      stroke-width: 14;
-      stroke-linecap: round;
-      stroke-dasharray: 238.76;
-      stroke-dashoffset: 238.76;
-      transition: stroke-dashoffset 0.5s ease;
-    }
-
-    .donut-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .donut-numbers {
-      font-size: 22px;
-      font-weight: 800;
-      color: #5a3e2b;
-      line-height: 1;
-    }
-
-    .donut-numbers span {
-      font-size: 14px;
-      font-weight: 600;
-      color: #8a6a55;
-    }
-
-    .donut-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #8a6a55;
-      margin-top: 4px;
-    }
-
-    /* Controls */
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .filter-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--subtext);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn.active {
-      border-color: var(--primary);
-      color: var(--primary-dark);
-      background: #fff3d6;
-    }
-
-    .reset-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--subtext);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .reset-btn:hover {
-      border-color: var(--warning);
-      color: var(--warning);
-    }
-
-    /* Section Label */
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--subtext);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      margin: 24px 0 10px 4px;
-    }
-
-    /* Checklist Item */
-    .checklist-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 6px;
-      overflow: hidden;
-      transition: border-color 0.2s, background 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-
-    .checklist-item.checked {
-      background: var(--checked-bg);
-      border-color: #f5d88a;
-    }
-
-    .item-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 16px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .item-header:hover { background: rgba(245,166,35,0.04); }
-
-    /* Checkbox */
-    .checkbox {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      border-radius: 6px;
-      border: 2px solid #d0d0cc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 13px;
-      font-weight: 700;
-      background: white;
-    }
-
-    .checkbox.checked {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    /* Badge */
-    .badge {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .badge-required {
-      background: #fde8e8;
-      color: #c0392b;
-    }
-
-    /* Item Title */
-    .item-title {
+    .section-title::after {
+      content: '';
       flex: 1;
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.4;
-      color: var(--text);
+      height: 2px;
+      background: var(--border);
     }
 
-    .item-title.done {
-      text-decoration: line-through;
-      color: var(--subtext);
-      font-weight: 400;
+    .what-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
     }
 
-    /* Expand Arrow */
-    .expand-arrow {
-      color: #c0c0bc;
-      font-size: 11px;
-      transition: transform 0.2s;
-    }
-
-    .expand-arrow.open { transform: rotate(180deg); }
-
-    /* Item Content */
-    .item-content {
-      display: none;
-      padding: 12px 16px 16px 50px;
-      border-top: 1px solid var(--border);
-      background: var(--surface2);
-    }
-
-    .item-content.open { display: block; }
-
-    .item-description {
-      color: #555;
-      font-size: 13px;
-      line-height: 1.8;
-      margin-bottom: 12px;
-      white-space: pre-line;
-    }
-
-    .content-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--subtext);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .content-links {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .content-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #2980b9;
-      text-decoration: none;
-      font-size: 13px;
-      padding: 8px 12px;
-      background: #eef6fc;
-      border-radius: 6px;
-      transition: background 0.2s;
-      font-weight: 500;
-    }
-
-    .content-link:hover { background: #d6eaf8; }
-
-    /* Select */
-    .select-wrap { margin-top: 4px; }
-
-    .select-input {
-      width: 100%;
-      background: white;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      appearance: none;
-    }
-
-    .select-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* Completion Banner */
-    .completion-banner {
-      display: none;
-      background: linear-gradient(135deg, #f0fff4, #fffbf0);
-      border: 2px solid var(--success);
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      margin-top: 24px;
-    }
-
-    .completion-banner.visible { display: block; }
-
-    .completion-banner h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
-
-    .completion-banner p {
-      color: var(--subtext);
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    .libecity-btn {
-      display: inline-block;
-      background: var(--primary);
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 14px 28px;
-      border-radius: 99px;
-      text-decoration: none;
-      box-shadow: 0 4px 14px rgba(245,166,35,0.4);
-      transition: all 0.2s;
-    }
-
-    .libecity-btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245,166,35,0.5);
-    }
-
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-overlay.visible { display: flex; }
-
-    .modal {
+    .what-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 28px;
-      max-width: 360px;
-      width: 90%;
+      padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .what-card-icon { font-size: 32px; margin-bottom: 12px; }
+    .what-card-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .what-card-desc { font-size: 14px; line-height: 1.7; color: #555; }
+
+    /* Excitement section */
+    .excitement {
+      background: linear-gradient(135deg, #fff8ec, #fff3d6);
+      border: 1px solid #f5d78e;
+      border-radius: 20px;
+      padding: 40px 32px;
+      margin-bottom: 60px;
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .excitement-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+    .excitement-title {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .excitement-title .accent { color: var(--primary); }
+    .excitement-desc {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #555;
+      max-width: 560px;
+      margin: 0 auto 32px;
     }
 
-    .modal h3 { font-size: 18px; margin-bottom: 10px; color: var(--text); }
-
-    .modal p {
-      color: var(--subtext);
-      font-size: 14px;
-      margin-bottom: 24px;
-      line-height: 1.6;
+    /* Nav cards */
+    .nav-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 60px;
     }
 
-    .modal-buttons { display: flex; gap: 12px; }
-
-    .btn-cancel {
-      flex: 1;
-      padding: 12px;
-      background: none;
+    .nav-card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-decoration: none;
       color: var(--text);
-      font-size: 14px;
-      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .nav-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 20px rgba(245,166,35,0.15);
+      transform: translateY(-2px);
+    }
+    .nav-card-icon { font-size: 28px; }
+    .nav-card-title { font-size: 16px; font-weight: 800; }
+    .nav-card-desc { font-size: 13px; color: var(--subtext); line-height: 1.6; }
+    .nav-card-arrow { margin-top: auto; font-size: 13px; color: var(--primary-dark); font-weight: 700; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--subtext);
     }
 
-    .btn-reset {
-      flex: 1;
-      padding: 12px;
-      background: var(--warning);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+    @media (max-width: 640px) {
+      .hero { flex-direction: column-reverse; padding: 40px 20px 32px; gap: 32px; }
+      .hero-title { font-size: 28px; }
+      .hero-image { width: 100%; min-width: unset; }
+      .hero-image img { width: 160px; }
+      .excitement-title { font-size: 22px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div class="header-logo">Claude <span>Code</span></div>
-  <div class="header-subtitle">インストール 事前準備セルフチェック</div>
+  <nav class="header-nav">
+    <a href="/precheck">事前準備</a>
+    <a href="/faq">FAQ</a>
+  </nav>
 </div>
 
-<!-- OS Selection -->
-<div class="os-selection" id="osSelection">
-
-  <div class="hero">
-    <img class="kuroko-img" src="images/assistant.png" alt="導入アシスタント">
-    <div class="speech-bubble">
-      こんにちは！Claude Code の準備を<br>一緒に進めましょう！<br>まずあなたのパソコンを教えてね。
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-text">
+    <span class="hero-eyebrow">CLAUDE CODE WORKSHOP</span>
+    <h1 class="hero-title">
+      AIが、あなたの<br>
+      <span class="accent">代わりに働く</span>時代へ。
+    </h1>
+    <p class="hero-desc">
+      クロコ（Claude Code）は、指示するだけで<br>
+      コードを書き、ファイルを操作し、仕事を完了させる<br>
+      <strong>エージェント型AI</strong>です。
+    </p>
+    <div class="hero-btns">
+      <a href="/precheck" class="btn-primary">事前準備チェックを始める</a>
+      <a href="/faq" class="btn-secondary">FAQ を見る</a>
     </div>
-    <div class="kuroko-about">
-      <p><strong>クロコ</strong>とは、エージェント型AIの <strong>Claude Code</strong>（デスクトップアプリ版）のことです。</p>
-      <p>従来のチャット型AIとは違い、<strong>労働を代替してくれるAI</strong> です。産業革命とも言われています。</p>
-    </div>
   </div>
-
-  <div class="os-prompt">あなたのパソコンの種類は？</div>
-
-  <div class="os-buttons">
-    <button class="os-btn" onclick="selectOS('mac')">
-      Mac
-      <div class="os-sub">Apple シリコン / Intel</div>
-    </button>
-    <button class="os-btn" onclick="selectOS('win')">
-      Windows
-      <div class="os-sub">x64 / arm64</div>
-    </button>
-  </div>
-
-</div>
-
-<!-- Checklist -->
-<div class="checklist-container" id="checklistContainer">
-
-  <div class="os-change">
-    <span class="os-tag" id="osTag"></span>
-    <button class="change-os-btn" onclick="showOSSelection()">OSを変更する</button>
-  </div>
-
-  <div class="progress-section">
-    <div class="donut-card">
-      <div class="donut-wrap">
-        <svg class="donut-svg" viewBox="0 0 100 100">
-          <circle class="donut-bg" cx="50" cy="50" r="38" />
-          <circle class="donut-fill" id="donutFill" cx="50" cy="50" r="38" />
-        </svg>
-        <div class="donut-center">
-          <div class="donut-numbers"><span id="donutDone">0</span><span>/<span id="donutTotal">0</span></span></div>
-          <div class="donut-label">事前準備</div>
-        </div>
+  <div class="hero-image">
+    <div class="bubble-wrap">
+      <div class="speech-bubble">
+        こんにちは！<br>一緒に準備しましょう！
       </div>
+      <img src="/images/kuroko.png" alt="クロコ" onerror="this.src='/images/assistant.png'">
     </div>
   </div>
+</div>
 
-  <div class="controls">
-    <button class="filter-btn" id="filterBtn" onclick="toggleFilter()">未完了のみ表示</button>
-    <button class="reset-btn" onclick="showResetModal()">最初からやり直す</button>
+<!-- What is クロコ -->
+<div class="section">
+  <div class="section-title">クロコとは？</div>
+  <div class="what-cards">
+    <div class="what-card">
+      <div class="what-card-icon">🤖</div>
+      <div class="what-card-title">エージェント型AI</div>
+      <div class="what-card-desc">従来のチャット型AIとは違い、あなたの指示を受けて自律的に作業を進めます。「これをやって」と頼むだけでOK。</div>
+    </div>
+    <div class="what-card">
+      <div class="what-card-icon">💻</div>
+      <div class="what-card-title">デスクトップアプリ版</div>
+      <div class="what-card-desc">Claude Code のデスクトップアプリ版です。ファイル操作・コード生成・検索など、PCの作業を代わりにこなします。</div>
+    </div>
+    <div class="what-card">
+      <div class="what-card-icon">🏭</div>
+      <div class="what-card-title">産業革命レベルの変化</div>
+      <div class="what-card-desc">「AIに仕事を頼む」時代が来ました。使いこなせる人と使えない人で、圧倒的な差が生まれる時代です。</div>
+    </div>
   </div>
+</div>
 
-  <div class="section-label">共通（全員）</div>
-  <div id="commonItems"></div>
+<!-- Excitement -->
+<div class="section">
+  <div class="excitement">
+    <div class="excitement-label">WHY KUROKO?</div>
+    <h2 class="excitement-title">
+      あなたの働き方が、<br><span class="accent">今日から変わる。</span>
+    </h2>
+    <p class="excitement-desc">
+      クロコは、プログラミングの知識がなくても使えます。<br>
+      「このデータをグラフにして」「メールの文章を直して」<br>
+      日本語で頼むだけで、クロコが代わりに動きます。<br><br>
+      このオフ会では、クロコを使いこなすための<br>
+      <strong>最初の一歩</strong>を、一緒に踏み出します。
+    </p>
+    <a href="/precheck" class="btn-primary">事前準備を始める →</a>
+  </div>
+</div>
 
-  <div class="section-label" id="osLabel"></div>
-  <div id="osItems"></div>
-
-  <div class="completion-banner" id="completionBanner">
-    <h3>🎉 準備完了！</h3>
-    <p>全ての事前確認が完了しました。<br>下のボタンからリベシティのチャットへ参加してください！</p>
-    <a class="libecity-btn" href="https://libecity.com/room_list?room_id=fIpTpUrfiHjn6aHN79gR" target="_blank">
-      リベシティのチャットへ参加する →
+<!-- Navigation cards -->
+<div class="section">
+  <div class="section-title">メニュー</div>
+  <div class="nav-cards">
+    <a href="/precheck" class="nav-card">
+      <div class="nav-card-icon">✅</div>
+      <div class="nav-card-title">事前準備チェックリスト</div>
+      <div class="nav-card-desc">当日までに完了しておく準備項目をチェック。WiFi・OS・クレカなど必要なものを確認しましょう。</div>
+      <div class="nav-card-arrow">チェックを始める →</div>
+    </a>
+    <a href="/faq" class="nav-card">
+      <div class="nav-card-icon">💬</div>
+      <div class="nav-card-title">よくある質問 FAQ</div>
+      <div class="nav-card-desc">クロコに関するよくある質問と答えをまとめています。困ったらまずここを確認。</div>
+      <div class="nav-card-arrow">FAQを見る →</div>
+    </a>
+    <a href="https://libecity.com/room_list?room_id=fIpTpUrfiHjn6aHN79gR" target="_blank" class="nav-card">
+      <div class="nav-card-icon">💬</div>
+      <div class="nav-card-title">オフ会チャット</div>
+      <div class="nav-card-desc">リベシティのオフ会チャットルームです。参加者同士で情報交換しましょう。</div>
+      <div class="nav-card-arrow">チャットに参加する →</div>
     </a>
   </div>
-
 </div>
 
-<!-- Reset Modal -->
-<div class="modal-overlay" id="resetModal">
-  <div class="modal">
-    <h3>最初からやり直しますか？</h3>
-    <p>OS選択とチェックリストの進捗が全てリセットされます。<br>アカウント情報は削除されません。</p>
-    <div class="modal-buttons">
-      <button class="btn-cancel" onclick="hideResetModal()">キャンセル</button>
-      <button class="btn-reset" onclick="resetAll()">リセット</button>
-    </div>
-  </div>
+<div class="footer">
+  © 2026 Claude Code サポートサイト
 </div>
 
-<script>
-  const commonItems = [
-    {
-      id: 'wifi',
-      title: 'WiFiの確認',
-      description: 'インストールやアップデートには安定したWiFiが必要です。\n"google speed test" で検索してスピードテストを試してみましょう。',
-      links: [{ icon: '🔗', label: 'Google Speed Test を開く', url: 'https://www.google.com/search?q=google+speed+test' }]
-    },
-    {
-      id: 'power',
-      title: '電源ケーブルの用意',
-      description: 'OSのアップデート中はバッテリー切れを防ぐため電源ケーブルが必要です。\n当日は必ず持参してください。',
-      links: []
-    },
-    {
-      id: 'sms',
-      title: 'ショートメッセージ（SMS）の確認',
-      description: 'Claude Code のログインにはSMS認証が必要です。\n事前に自分宛にSMSを送って受信できるか確認しておきましょう。',
-      links: []
-    },
-    {
-      id: 'credit_card',
-      title: 'クレジットカードの用意',
-      description: 'Claude Code は Pro プラン以上でないと使用できません。\n当日 Pro 登録ができるよう、クレジットカードを用意しておいてください。',
-      links: []
-    },
-    {
-      id: 'gmail',
-      title: 'Googleアカウント（Gmail）の確認',
-      description: 'このシステムへのログインに Google アカウントを使います。\nログインできるか事前に確認しておきましょう。',
-      links: []
-    },
-    {
-      id: 'name_badge',
-      title: '名札の用意',
-      description: '会場（新橋オフィス）では名札の着用が義務です。\n当日は名札を持参するか、会場で受け取ってください。',
-      links: []
-    },
-    {
-      id: 'claude_account',
-      title: 'Claudeのアカウント確認',
-      description: 'Claude のアカウントをすでに持っていますか？',
-      links: [],
-      type: 'select',
-      selectId: 'select_claude_account',
-      options: ['選択してください', 'アカウントなし', 'アカウントあり']
-    },
-    {
-      id: 'claude_plan',
-      title: 'Claudeの契約プラン確認',
-      description: '現在契約している Claude のプランを選択してください。\nプランによって当日の開始ステップが変わります。',
-      links: [],
-      type: 'select',
-      selectId: 'select_claude_plan',
-      options: ['選択してください', 'なし（契約していない）', 'フリープラン', 'Pro', 'Max x5', 'Max x20', 'それ以上']
-    }
-  ];
-
-  const macItems = [
-    {
-      id: 'macos_update',
-      title: 'macOSのバージョンを確認してChatGPTに聞く',
-      description: '【手順】\n① 画面左上のアップルマーク（）をクリック\n② 「このMacについて」を選択\n③ バージョン情報の画面が開いたらスクショを撮る\n   （⌘ + Shift + 4 で範囲選択して撮影）\n\n④ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のMacのOSバージョンはClaude Codeのインストールに問題ありませんか？最新でない場合はアップデート方法も教えてください。」\n\n⑤ ChatGPT の指示に従ってアップデートを完了させる\n\n※ アップデートには30分〜1時間かかる場合があります。当日ではなく事前に済ませておきましょう。',
-      links: []
-    },
-    {
-      id: 'mac_screenshot',
-      title: 'スクショの撮り方（Mac）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：⌘ + Shift + 3\n範囲選択：⌘ + Shift + 4\n　→ マウスでドラッグして範囲を選択する\n保存先：デスクトップ\n\n撮ったスクショがデスクトップに保存されているか確認してみましょう。',
-      links: []
-    }
-  ];
-
-  const winItems = [
-    {
-      id: 'win_type',
-      title: 'WindowsのCPU種類をスクショしてChatGPTに聞く',
-      description: '【手順】\n① キーボードの「Windowsキー」+「R」を同時に押す\n② 小さな入力欄が開くので「msinfo32」と入力してEnterキー\n③ 「システム情報」の画面が開く\n④ その画面のスクショを撮る\n   （Windowsキー + Shift + S で範囲選択して撮影）\n\n⑤ ChatGPT を開いて、スクショを貼り付けて以下を送信：\n\n「このスクショを見てください。私のWindowsパソコンはIntelですか、ARMですか？Claude Codeをインストールするにはどのバージョンのインストーラーをダウンロードすればいいか教えてください。」\n\n⑥ ChatGPT に教えてもらったインストーラーの種類をメモしておく',
-      links: []
-    },
-    {
-      id: 'win_screenshot',
-      title: 'スクショの撮り方（Windows）',
-      description: 'ほしい画面だけ切り取る方法と、保存場所を確認しておきましょう。\n\n全画面：Windowsキー + PrtSc\n範囲選択：Windowsキー + Shift + S\n　→ マウスでドラッグして範囲を選択する\n保存先：ピクチャ → スクリーンショット\n\n撮ったスクショがピクチャフォルダに保存されているか確認してみましょう。',
-      links: []
-    }
-  ];
-
-  // State
-  let currentOS = localStorage.getItem('os') || null;
-  let checked = JSON.parse(localStorage.getItem('checked') || '{}');
-  let filterIncomplete = false;
-
-  function init() {
-    if (currentOS) {
-      showChecklist();
-    }
-  }
-
-  function selectOS(os) {
-    currentOS = os;
-    localStorage.setItem('os', os);
-    showChecklist();
-  }
-
-  function showOSSelection() {
-    document.getElementById('osSelection').style.display = 'block';
-    document.getElementById('checklistContainer').classList.remove('visible');
-  }
-
-  function showChecklist() {
-    document.getElementById('osSelection').style.display = 'none';
-    document.getElementById('checklistContainer').classList.add('visible');
-    document.getElementById('osTag').textContent = currentOS === 'mac' ? ' Mac' : '🪟 Windows';
-    document.getElementById('osLabel').textContent = currentOS === 'mac' ? 'Mac 専用' : 'Windows 専用';
-    renderAll();
-    updateProgress();
-  }
-
-  function renderAll() {
-    renderSection('commonItems', commonItems);
-    renderSection('osItems', currentOS === 'mac' ? macItems : winItems);
-  }
-
-  function renderSection(containerId, items) {
-    const el = document.getElementById(containerId);
-    el.innerHTML = '';
-    items.forEach(item => {
-      if (filterIncomplete && checked[item.id]) return;
-      el.appendChild(buildItem(item));
-    });
-  }
-
-  function buildItem(item) {
-    const isChecked = !!checked[item.id];
-    const div = document.createElement('div');
-    div.className = 'checklist-item' + (isChecked ? ' checked' : '');
-    div.id = 'item-' + item.id;
-
-    const hasContent = item.description || (item.links && item.links.length) || item.type === 'select';
-
-    let contentHTML = '';
-    if (hasContent) {
-      let inner = '';
-      if (item.description) {
-        inner += `<p class="item-description">${item.description}</p>`;
-      }
-      if (item.type === 'select') {
-        const savedVal = checked[item.id + '_val'] || '';
-        inner += `<div class="select-wrap">
-          <select class="select-input" onchange="onSelect('${item.id}', this.value)">
-            ${item.options.map(o => `<option value="${o}"${savedVal === o ? ' selected' : ''}>${o}</option>`).join('')}
-          </select>
-        </div>`;
-      }
-      if (item.links && item.links.length) {
-        inner += `<div class="content-label">参考コンテンツ</div><div class="content-links">`;
-        item.links.forEach(l => {
-          inner += `<a class="content-link" href="${l.url}" target="_blank"><span>${l.icon}</span>${l.label}</a>`;
-        });
-        inner += `</div>`;
-      }
-      contentHTML = `<div class="item-content" id="content-${item.id}">${inner}</div>`;
-    }
-
-    div.innerHTML = `
-      <div class="item-header" onclick="toggleExpand('${item.id}')">
-        <div class="checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(event,'${item.id}')">${isChecked ? '✓' : ''}</div>
-        <span class="badge badge-required">必須</span>
-        <span class="item-title${isChecked ? ' done' : ''}">${item.title}</span>
-        ${hasContent ? `<span class="expand-arrow" id="arrow-${item.id}">▼</span>` : ''}
-      </div>
-      ${contentHTML}
-    `;
-    return div;
-  }
-
-  function toggleExpand(id) {
-    const content = document.getElementById('content-' + id);
-    const arrow = document.getElementById('arrow-' + id);
-    if (content) content.classList.toggle('open');
-    if (arrow) arrow.classList.toggle('open');
-  }
-
-  function toggleCheck(e, id) {
-    e.stopPropagation();
-    if (checked[id]) {
-      delete checked[id];
-    } else {
-      checked[id] = true;
-    }
-    save();
-    renderAll();
-    updateProgress();
-  }
-
-  function onSelect(id, value) {
-    if (value !== '選択してください') {
-      checked[id] = true;
-      checked[id + '_val'] = value;
-    } else {
-      delete checked[id];
-      delete checked[id + '_val'];
-    }
-    save();
-    updateProgress();
-    // チェックボックスとタイトルだけ更新（ドロップダウンを閉じないため）
-    const itemEl = document.getElementById('item-' + id);
-    if (itemEl) {
-      const isNowChecked = !!checked[id];
-      itemEl.className = 'checklist-item' + (isNowChecked ? ' checked' : '');
-      const cb = itemEl.querySelector('.checkbox');
-      if (cb) { cb.className = 'checkbox' + (isNowChecked ? ' checked' : ''); cb.textContent = isNowChecked ? '✓' : ''; }
-      const t = itemEl.querySelector('.item-title');
-      if (t) t.className = 'item-title' + (isNowChecked ? ' done' : '');
-    }
-  }
-
-  function updateProgress() {
-    const osSpecific = currentOS === 'mac' ? macItems : winItems;
-    const all = [...commonItems, ...osSpecific];
-    const total = all.length;
-    const done = all.filter(i => checked[i.id]).length;
-
-    const circumference = 238.76; // 2 * π * 38
-    const offset = total ? circumference * (1 - done / total) : circumference;
-    document.getElementById('donutFill').style.strokeDashoffset = offset;
-    document.getElementById('donutDone').textContent = done;
-    document.getElementById('donutTotal').textContent = total;
-
-    document.getElementById('completionBanner').classList.toggle('visible', total > 0 && done === total);
-  }
-
-  function toggleFilter() {
-    filterIncomplete = !filterIncomplete;
-    const btn = document.getElementById('filterBtn');
-    btn.classList.toggle('active', filterIncomplete);
-    btn.textContent = filterIncomplete ? '全て表示' : '未完了のみ表示';
-    renderAll();
-  }
-
-  function save() {
-    localStorage.setItem('checked', JSON.stringify(checked));
-  }
-
-  function showResetModal() {
-    document.getElementById('resetModal').classList.add('visible');
-  }
-
-  function hideResetModal() {
-    document.getElementById('resetModal').classList.remove('visible');
-  }
-
-  function resetAll() {
-    checked = {};
-    currentOS = null;
-    localStorage.removeItem('checked');
-    localStorage.removeItem('os');
-    hideResetModal();
-    document.getElementById('checklistContainer').classList.remove('visible');
-    document.getElementById('osSelection').style.display = 'block';
-  }
-
-  init();
-</script>
 </body>
 </html>
