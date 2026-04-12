@@ -662,7 +662,7 @@
   <div class="completion-banner" id="completionBanner">
     <h3>🎉 準備完了！</h3>
     <p>全ての事前確認が完了しました。<br>下のボタンからリベシティのチャットへ参加してください！</p>
-    <a class="libecity-btn" href="https://libecity.com/room_list?room_id=Ul9y8sDHmo3cslU80diR" target="_blank">
+    <a class="libecity-btn" href="https://libecity.com/room_list?room_id=fIpTpUrfiHjn6aHN79gR" target="_blank">
       リベシティのチャットへ参加する →
     </a>
   </div>
@@ -775,7 +775,9 @@
   let filterIncomplete = false;
 
   function init() {
-    // 常にOS選択画面からスタート
+    if (currentOS) {
+      showChecklist();
+    }
   }
 
   function selectOS(os) {
