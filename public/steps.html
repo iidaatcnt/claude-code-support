@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>インストール手順 | Claude Code 伴走会</title>
+  <title>当日インストール手順 | クロコ！伴走会</title>
   <style>
     :root {
       --bg: #f4f4f0;
       --surface: #ffffff;
+      --surface2: #f8f8f5;
       --primary: #f5a623;
       --primary-dark: #e8941a;
       --success: #27ae60;
@@ -26,7 +27,6 @@
       min-height: 100vh;
     }
 
-    /* Header */
     .header {
       background: var(--surface);
       border-bottom: 2px solid var(--primary);
@@ -34,633 +34,888 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
     }
     .header-logo { font-size: 18px; font-weight: 800; color: var(--text); text-decoration: none; }
     .header-logo span { color: var(--primary); }
     .header-nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
-    .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; }
+    .header-nav a { color: var(--subtext); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s; }
+    .header-nav a:hover { color: var(--primary-dark); }
     .header-nav a.active { color: var(--primary-dark); border-bottom: 2px solid var(--primary); padding-bottom: 1px; }
 
-    /* Progress bar */
-    .progress-bar-wrap {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .login-btn {
+      background: var(--primary); color: white; border: none; border-radius: 8px;
+      padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s; font-family: inherit;
     }
-    .progress-text { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; }
-    .progress-bar-bg {
-      flex: 1;
-      height: 8px;
-      background: var(--border);
-      border-radius: 99px;
-      overflow: hidden;
+    .login-btn:hover { background: var(--primary-dark); }
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .logout-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--subtext); font-family: inherit;
     }
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--primary);
-      border-radius: 99px;
-      transition: width 0.4s ease;
-    }
-    .progress-pct { font-size: 13px; font-weight: 700; color: var(--primary-dark); min-width: 36px; text-align: right; }
+    .sync-badge { font-size: 11px; color: var(--success); font-weight: 600; }
 
-    /* Main */
-    .main {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 24px 16px 60px;
+    /* OS Selection */
+    .os-selection {
+      max-width: 600px; margin: 60px auto; padding: 0 20px; text-align: center;
     }
+    .os-selection h2 { font-size: 22px; margin-bottom: 8px; }
+    .os-selection p { color: var(--subtext); font-size: 14px; margin-bottom: 36px; }
+    .os-buttons { display: flex; gap: 16px; justify-content: center; }
+    .os-btn {
+      flex: 1; max-width: 260px; padding: 36px 20px; background: var(--surface);
+      border: 3px solid var(--border); border-radius: 20px; color: var(--text);
+      font-size: 22px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .os-btn:hover {
+      border-color: var(--primary); background: #fff3d6;
+      transform: translateY(-2px); box-shadow: 0 4px 16px rgba(245,166,35,0.2);
+    }
+    .os-icon { font-size: 52px; display: block; margin-bottom: 12px; }
+    .os-btn-sub { display: block; font-size: 12px; font-weight: 500; color: var(--subtext); margin-top: 6px; }
+    .os-or { font-size: 14px; font-weight: 700; color: var(--subtext); display: flex; align-items: center; padding: 0 4px; }
 
-    .page-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-    .page-sub {
-      font-size: 13px;
-      color: var(--subtext);
-      margin-bottom: 24px;
-    }
+    /* Checklist Container */
+    .checklist-container { max-width: 700px; margin: 0 auto; padding: 20px; display: none; }
+    .checklist-container.visible { display: block; }
 
-    /* OS Tab */
-    .os-tab {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
+    /* OS Toggle */
+    .os-toggle { display: flex; margin-bottom: 16px; }
+    .os-toggle-btn {
+      padding: 8px 24px; font-size: 14px; font-weight: 700;
+      border: 1px solid var(--border); background: var(--surface); color: var(--subtext);
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
-    .os-tab-btn {
-      flex: 1;
-      padding: 10px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      background: var(--surface);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
-      color: var(--subtext);
-    }
-    .os-tab-btn.active {
-      border-color: var(--primary);
-      background: #fff8ec;
-      color: var(--text);
-    }
+    .os-toggle-btn:first-child { border-radius: 8px 0 0 8px; }
+    .os-toggle-btn:last-child { border-radius: 0 8px 8px 0; border-left: none; }
+    .os-toggle-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
 
-    /* Step card */
-    .step-card {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      margin-bottom: 12px;
-      overflow: hidden;
-      transition: border-color 0.2s;
+    /* Progress circle */
+    .progress-section {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;
     }
-    .step-card.done {
-      border-color: var(--success);
-      background: #f0faf4;
+    .progress-circle-wrap { position: relative; width: 120px; height: 120px; }
+    .progress-circle-wrap svg { transform: rotate(-90deg); }
+    .progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 10; }
+    .progress-ring-fill {
+      fill: none; stroke: var(--primary); stroke-width: 10; stroke-linecap: round;
+      transition: stroke-dashoffset 0.6s ease;
     }
+    .progress-ring-fill.complete { stroke: #27ae60; }
+    .progress-center {
+      position: absolute; inset: 0; display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+    }
+    .progress-count { font-size: 22px; font-weight: 900; color: var(--text); line-height: 1; }
+    .progress-label { font-size: 11px; color: var(--subtext); font-weight: 600; margin-top: 4px; }
 
-    .step-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 18px;
-      cursor: pointer;
+    /* Controls */
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .filter-btn {
+      background: none; border: 1px solid var(--border); color: var(--subtext);
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s;
     }
-
-    .step-badge {
-      min-width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--subtext);
-      flex-direction: column;
-      line-height: 1.1;
-    }
-    .step-badge .badge-num { font-size: 16px; }
-    .step-card.done .step-badge {
-      background: var(--success);
-      color: white;
-    }
-
-    .step-info { flex: 1; }
-    .step-title {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 2px;
-    }
-    .step-desc {
-      font-size: 12px;
-      color: var(--subtext);
-    }
-    .step-card.done .step-title { color: var(--success); }
-
-    .step-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .detail-toggle {
-      font-size: 11px;
-      color: var(--subtext);
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-    .detail-toggle:hover { border-color: var(--primary); color: var(--primary-dark); }
-
-    .check-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      background: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .check-btn:hover { border-color: var(--success); background: #e8f8ef; }
-    .step-card.done .check-btn {
-      border-color: var(--success);
-      background: var(--success);
-      color: white;
-    }
-
-    /* Detail area */
-    .step-detail {
-      display: none;
-      border-top: 1px solid var(--border);
-      padding: 16px 18px;
-      font-size: 14px;
-      line-height: 1.8;
-      background: #fafafa;
-    }
-    .step-card.done .step-detail { background: #f4faf6; }
-    .step-detail.open { display: block; }
-
-    .step-detail h4 {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--subtext);
-      margin: 14px 0 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .step-detail h4:first-child { margin-top: 0; }
-
-    .step-detail ul { padding-left: 18px; margin: 6px 0; }
-    .step-detail li { margin-bottom: 4px; }
-
-    .step-detail .tip {
-      background: #fff8ec;
-      border-left: 3px solid var(--primary);
-      padding: 8px 12px;
-      border-radius: 0 6px 6px 0;
-      font-size: 13px;
-      margin: 10px 0;
-    }
-    .step-detail .warn {
-      background: #fff0f0;
-      border-left: 3px solid var(--warning);
-      padding: 8px 12px;
-      border-radius: 0 6px 6px 0;
-      font-size: 13px;
-      margin: 10px 0;
-    }
-    .step-detail .cmd {
-      background: #1a1a1a;
-      color: #f5a623;
-      font-family: monospace;
-      font-size: 13px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin: 6px 0;
-      display: block;
-    }
-    .step-detail a { color: var(--primary-dark); }
-
-    /* OS-specific content */
-    .os-content { display: none; }
-    .os-content.show { display: block; }
-    .os-label {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 4px;
-      margin-bottom: 4px;
-    }
-    .os-label.mac { background: #e8f0fe; color: #3c5a99; }
-    .os-label.win { background: #e8f4fd; color: #0078d4; }
-
-    /* Complete banner */
-    .complete-banner {
-      display: none;
-      background: linear-gradient(135deg, #27ae60, #2ecc71);
-      color: white;
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      margin-top: 16px;
-      animation: pop 0.4s ease;
-    }
-    .complete-banner.show { display: block; }
-    .complete-banner h3 { font-size: 20px; margin-bottom: 6px; }
-    .complete-banner p { font-size: 14px; opacity: 0.9; }
-
-    @keyframes pop {
-      0% { transform: scale(0.95); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Reset */
+    .filter-btn.active { border-color: var(--primary); color: var(--primary-dark); background: #fff3d6; }
     .reset-btn {
-      display: block;
-      margin: 16px auto 0;
-      background: none;
-      border: none;
-      color: var(--subtext);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      text-decoration: underline;
+      background: none; border: 1px solid var(--border); color: var(--subtext);
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .reset-btn:hover { border-color: var(--warning); color: var(--warning); }
+
+    /* Section Label */
+    .section-label {
+      font-size: 12px; font-weight: 700; color: var(--subtext);
+      text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 10px 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Checklist Item */
+    .checklist-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      margin-bottom: 8px; overflow: hidden; transition: border-color 0.2s, opacity 0.2s;
+    }
+    .checklist-item.checked { border-color: rgba(76,175,80,0.5); opacity: 0.7; }
+    .checklist-item.hidden { display: none; }
+
+    .item-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; cursor: pointer; user-select: none;
+    }
+    .item-header:hover { background: rgba(0,0,0,0.01); }
+
+    .checkbox {
+      width: 22px; height: 22px; min-width: 22px; border-radius: 6px;
+      border: 2px solid var(--border); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+      font-size: 13px; font-weight: 700;
+    }
+    .checkbox.checked { background: var(--success); border-color: var(--success); color: white; }
+
+    .badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 99px; white-space: nowrap;
+    }
+    .badge-required { background: #fde8e8; color: var(--warning); border: 1px solid #f5c6c6; }
+    .badge-warning  { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+    .badge-mac      { background: #e8f0fe; color: #3c5a99; border: 1px solid #c5d3f5; }
+    .badge-win      { background: #e8f4fd; color: #0078d4; border: 1px solid #b8dffa; }
+
+    .item-title { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.4; }
+    .item-title.done { text-decoration: line-through; color: var(--subtext); }
+
+    .expand-arrow { color: var(--subtext); font-size: 11px; transition: transform 0.2s; }
+    .expand-arrow.open { transform: rotate(180deg); }
+
+    /* Item Content */
+    .item-content { display: none; padding: 12px 16px 16px 50px; border-top: 1px solid var(--border); }
+    .item-content.open { display: block; }
+    .item-description { color: var(--subtext); font-size: 14px; line-height: 1.7; margin-bottom: 12px; white-space: pre-line; }
+
+    .content-links { display: flex; flex-direction: column; gap: 8px; }
+    .content-link {
+      display: flex; align-items: center; gap: 8px; color: var(--primary-dark);
+      text-decoration: none; font-size: 14px; padding: 8px 12px;
+      background: #fff3d6; border-radius: 8px; transition: background 0.2s;
+    }
+    .content-link:hover { background: #ffe9b0; }
+
+    .tip {
+      background: #fff8ec; border-left: 3px solid var(--primary);
+      padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 13px;
+      color: var(--text); margin-top: 8px; line-height: 1.6;
+    }
+    .warn {
+      background: #fff3cd; border-left: 3px solid #ffc107;
+      padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 13px;
+      color: #856404; margin-top: 8px; line-height: 1.6;
+    }
+    .cmd {
+      background: #1a1a1a; color: #f5a623; font-family: monospace;
+      font-size: 13px; padding: 8px 12px; border-radius: 6px;
+      margin: 6px 0; display: block;
+    }
+
+    /* OS specific items */
+    .os-item-mac, .os-item-win { display: none; }
+    .show-mac .os-item-mac { display: block; }
+    .show-win .os-item-win { display: block; }
+
+    /* Completion Banner */
+    .completion-banner {
+      display: none; background: linear-gradient(135deg, rgba(39,174,96,0.1), rgba(245,166,35,0.1));
+      border: 1px solid var(--success); border-radius: 12px;
+      padding: 24px; text-align: center; margin-top: 24px;
+    }
+    .completion-banner.visible { display: block; }
+    .completion-banner h3 { font-size: 20px; margin-bottom: 8px; }
+    .completion-banner p { color: var(--subtext); font-size: 14px; line-height: 1.6; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; max-width: 360px; width: 90%; text-align: center;
+    }
+    .modal h3 { font-size: 18px; margin-bottom: 10px; }
+    .modal p { color: var(--subtext); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+    .modal-buttons { display: flex; gap: 12px; }
+    .btn-cancel {
+      flex: 1; padding: 12px; background: none; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .btn-reset {
+      flex: 1; padding: 12px; background: var(--warning); border: none;
+      border-radius: 8px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
     }
   </style>
 </head>
 <body>
 
-<header class="header">
-  <a class="header-logo" href="index.html">クロコ<span>！</span>伴走会</a>
+<div class="header">
+  <a href="index.html" class="header-logo">クロコ<span>！</span>伴走会</a>
   <nav class="header-nav">
     <a href="index.html">トップ</a>
     <a href="precheck.html">事前準備</a>
     <a href="steps.html" class="active">当日手順</a>
     <a href="faq.html">FAQ</a>
+    <span class="sync-badge" id="syncBadge" style="display:none">☁ 同期済み</span>
+    <div id="authArea">
+      <button class="login-btn" id="loginBtn">Googleでログイン</button>
+    </div>
   </nav>
-</header>
-
-<div class="progress-bar-wrap">
-  <span class="progress-text">進捗</span>
-  <div class="progress-bar-bg">
-    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-  </div>
-  <span class="progress-pct" id="progressPct">0%</span>
-  <span class="progress-text" id="progressCount">0 / 0</span>
 </div>
 
-<main class="main">
-  <h1 class="page-title">インストール当日手順</h1>
-  <p class="page-sub">上から順に進めてください。完了したら右端の〇をタップ！</p>
+<!-- OS選択画面 -->
+<div class="os-selection" id="osSelection">
+  <h2>あなたのPCはどちらですか？</h2>
+  <p>OSによってインストール手順が異なります</p>
+  <div class="os-buttons">
+    <button class="os-btn" onclick="selectOS('mac')">
+      <span class="os-icon"></span>Mac
+      <span class="os-btn-sub">Apple シリコン / Intel</span>
+    </button>
+    <span class="os-or">or</span>
+    <button class="os-btn" onclick="selectOS('win')">
+      <span class="os-icon">🪟</span>Windows
+      <span class="os-btn-sub">x64 / ARM</span>
+    </button>
+  </div>
+</div>
 
-  <!-- OS選択 -->
-  <div class="os-tab">
-    <button class="os-tab-btn" id="macBtn" onclick="setOS('mac')">🍎 Mac</button>
-    <button class="os-tab-btn" id="winBtn" onclick="setOS('win')">🪟 Windows</button>
+<!-- チェックリスト -->
+<div class="checklist-container" id="checklistContainer">
+
+  <!-- OS切り替えタブ -->
+  <div class="os-toggle">
+    <button class="os-toggle-btn" id="macToggle" onclick="selectOS('mac')"> Mac</button>
+    <button class="os-toggle-btn" id="winToggle" onclick="selectOS('win')">🪟 Windows</button>
   </div>
 
-  <!-- ステップ一覧 -->
-  <div id="stepList">
-
-    <!-- STEP 0 -->
-    <div class="step-card" id="step-0">
-      <div class="step-header" onclick="toggleDetail(0)">
-        <div class="step-badge"><span class="badge-num">0</span><span>準備</span></div>
-        <div class="step-info">
-          <div class="step-title">事前チェック</div>
-          <div class="step-desc">ノートPC・Wi-Fi・スマホを確認</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(0)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(0)" title="完了にする">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-0">
-        <h4>確認リスト</h4>
-        <ul>
-          <li>ノートPC（タブレット不可）を開いている</li>
-          <li>Wi-Fiに接続できている</li>
-          <li>スマホを横に置いている（SMS認証用）</li>
-          <li>名札をつけている</li>
-          <li>OSのソフトウェアアップデートが完了している</li>
-        </ul>
-        <div class="tip">💡 白衣のおじさん（サバ缶）を見つけたら声をかけてください！</div>
+  <!-- 進捗円グラフ -->
+  <div class="progress-section">
+    <div class="progress-circle-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
+        <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="52"
+          stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="progress-center">
+        <span class="progress-count" id="progressCount">0/0</span>
+        <span class="progress-label">完了</span>
       </div>
     </div>
+  </div>
 
-    <!-- STEP 1 -->
-    <div class="step-card" id="step-1">
-      <div class="step-header" onclick="toggleDetail(1)">
-        <div class="step-badge"><span class="badge-num">1</span><span>DL</span></div>
-        <div class="step-info">
-          <div class="step-title">デスクトップ版をダウンロード</div>
-          <div class="step-desc">公式サイトからクロコをダウンロード</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(1)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(1)">✓</button>
-        </div>
+  <div class="controls">
+    <button class="filter-btn" id="filterBtn" onclick="toggleFilter()">未完了のみ表示</button>
+    <button class="reset-btn" onclick="showResetModal()">最初からやり直す</button>
+  </div>
+
+  <!-- ===== STEP 0 ===== -->
+  <div class="section-label">STEP 0　事前チェック</div>
+
+  <div class="checklist-item" id="item-0-0">
+    <div class="item-header" onclick="toggleItem('0-0')">
+      <div class="checkbox" id="chk-0-0"></div>
+      <span class="item-title" id="ttl-0-0">ノートPCを開いている（タブレット不可）</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-0-0">▼</span>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-0-1">
+    <div class="item-header" onclick="toggleItem('0-1')">
+      <div class="checkbox" id="chk-0-1"></div>
+      <span class="item-title" id="ttl-0-1">Wi-Fiに接続できている</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-0-1">▼</span>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-0-2">
+    <div class="item-header" onclick="toggleItem('0-2')">
+      <div class="checkbox" id="chk-0-2"></div>
+      <span class="item-title" id="ttl-0-2">スマホを横に置いている（SMS認証用）</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-0-2">▼</span>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-0-3">
+    <div class="item-header" onclick="toggleItem('0-3')">
+      <div class="checkbox" id="chk-0-3"></div>
+      <span class="item-title" id="ttl-0-3">名札をつけている</span>
+      <span class="expand-arrow" id="arr-0-3">▼</span>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-0-4">
+    <div class="item-header" onclick="toggleItem('0-4')">
+      <div class="checkbox" id="chk-0-4"></div>
+      <span class="item-title" id="ttl-0-4">OSのソフトウェアアップデートが完了している</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-0-4">▼</span>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-0-5">
+    <div class="item-header" onclick="toggleItem('0-5')">
+      <div class="checkbox" id="chk-0-5"></div>
+      <span class="item-title" id="ttl-0-5">白衣のおじさん（サバ缶）を見つけた</span>
+      <span class="expand-arrow" id="arr-0-5">▼</span>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1 ===== -->
+  <div class="section-label">STEP 1　Anthropic アカウント作成・Pro プラン申し込み</div>
+
+  <div class="checklist-item" id="item-ac-0">
+    <div class="item-header" onclick="toggleItem('ac-0')">
+      <div class="checkbox" id="chk-ac-0"></div>
+      <span class="item-title" id="ttl-ac-0">使いたい Google アカウントを確認する</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-ac-0">▼</span>
+    </div>
+    <div class="item-content" id="con-ac-0">
+      <p class="item-description">Anthropic アカウントには <strong>Gmail（Googleアカウント）</strong> でのログインを推奨します。</p>
+      <div class="tip">💡 Googleアカウントが複数ある場合は<br>Gmail・カレンダー・ドライブなど、<strong>AIで効率化したい作業に使っているアカウント</strong>を選んでください</div>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-ac-1">
+    <div class="item-header" onclick="toggleItem('ac-1')">
+      <div class="checkbox" id="chk-ac-1"></div>
+      <span class="item-title" id="ttl-ac-1">claude.ai でアカウントを作成する</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-ac-1">▼</span>
+    </div>
+    <div class="item-content" id="con-ac-1">
+      <div class="content-links">
+        <a class="content-link" href="https://claude.ai" target="_blank">🔗 claude.ai を開く</a>
       </div>
-      <div class="step-detail" id="detail-1">
-        <h4>公式サイト</h4>
-        <p><a href="https://claude.com/download" target="_blank">https://claude.com/download</a></p>
+      <p class="item-description">「Google で続ける」を選択 → 使いたい Google アカウントでログインしてください。</p>
+    </div>
+  </div>
 
-        <div class="os-content mac">
-          <br><span class="os-label mac">Mac</span>
-          <ul>
-            <li>選択肢は1つだけ → そのままダウンロード</li>
-          </ul>
-        </div>
+  <div class="checklist-item" id="item-ac-2">
+    <div class="item-header" onclick="toggleItem('ac-2')">
+      <div class="checkbox" id="chk-ac-2"></div>
+      <span class="item-title" id="ttl-ac-2">Pro プランに申し込む</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-ac-2">▼</span>
+    </div>
+    <div class="item-content" id="con-ac-2">
+      <div class="warn">⚠️ <strong>年払いに注意！</strong>「月払い（$20/月）」を選んでください</div>
+      <p class="item-description">ログイン後、画面左下の「プランをアップグレード」からProプランを選択します。</p>
+    </div>
+  </div>
 
-        <div class="os-content win">
-          <br><span class="os-label win">Windows</span>
-          <ul>
-            <li>自分のPCに合った版を選んでダウンロード</li>
-            <li>IntelかARMか分からない場合：<br>
-              「設定 → システム → バージョン情報 → デバイスの仕様」のスクショをAIに質問</li>
-          </ul>
-          <div class="tip">💡 確認ツール：<a href="precheck.html" target="_blank">事前確認アプリ</a> → 「msinfo32」で調べられます</div>
-        </div>
+  <div class="checklist-item" id="item-ac-3">
+    <div class="item-header" onclick="toggleItem('ac-3')">
+      <div class="checkbox" id="chk-ac-3"></div>
+      <span class="item-title" id="ttl-ac-3">確認：画面右下のアイコンがプロペラ（🌀）になっている</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-ac-3">▼</span>
+    </div>
+    <div class="item-content" id="con-ac-3">
+      <p class="item-description">Web版（claude.ai）を開いて、画面右下を確認してください。</p>
+      <div class="tip">💡 プロペラアイコン（🌀）が表示されていれば Pro プランの契約完了です！</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <div class="section-label">STEP 2　デスクトップ版をダウンロード</div>
+
+  <div class="checklist-item" id="item-1-0">
+    <div class="item-header" onclick="toggleItem('1-0')">
+      <div class="checkbox" id="chk-1-0"></div>
+      <span class="item-title" id="ttl-1-0">公式サイトを開く</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-1-0">▼</span>
+    </div>
+    <div class="item-content" id="con-1-0">
+      <div class="content-links">
+        <a class="content-link" href="https://claude.com/download" target="_blank">🔗 claude.com/download を開く</a>
       </div>
     </div>
+  </div>
 
-    <!-- STEP 2 -->
-    <div class="step-card" id="step-2">
-      <div class="step-header" onclick="toggleDetail(2)">
-        <div class="step-badge"><span class="badge-num">2</span><span>設置</span></div>
-        <div class="step-info">
-          <div class="step-title">デスクトップ版をインストール</div>
-          <div class="step-desc">ダウンロードしたファイルを実行</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(2)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(2)">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-2">
-        <div class="os-content mac">
-          <span class="os-label mac">Mac</span>
-          <ul>
-            <li>ダウンロードした .dmg ファイルを開く</li>
-            <li>クロコアイコンを「アプリケーション」フォルダへドラッグ＆ドロップ</li>
-          </ul>
-        </div>
-        <div class="os-content win">
-          <span class="os-label win">Windows</span>
-          <ul>
-            <li>ダウンロードした Claude.exe をダブルクリック</li>
-            <li>画面の指示に従うだけで完了</li>
-          </ul>
-        </div>
-        <div class="tip">💡 インストール後はダウンロードフォルダのファイルを削除してOK</div>
-      </div>
+  <div class="checklist-item os-item-mac" id="item-1-1">
+    <div class="item-header" onclick="toggleItem('1-1')">
+      <div class="checkbox" id="chk-1-1"></div>
+      <span class="item-title" id="ttl-1-1">macOS 用をダウンロードする</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-1-1">▼</span>
     </div>
-
-    <!-- STEP 3 -->
-    <div class="step-card" id="step-3">
-      <div class="step-header" onclick="toggleDetail(3)">
-        <div class="step-badge"><span class="badge-num">3</span><span>Git</span></div>
-        <div class="step-info">
-          <div class="step-title">Git をインストール</div>
-          <div class="step-desc">バージョン管理ツールを入れる</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(3)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(3)">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-3">
-        <div class="os-content mac">
-          <span class="os-label mac">Mac</span>
-          <h4>ターミナルを起動</h4>
-          <p>⌘（Command）+ スペース → 「ターミナル」と入力 → Enter</p>
-          <h4>コマンドを実行</h4>
-          <code class="cmd">xcode-select --install</code>
-          <ul>
-            <li>ポップアップが出たら「インストール」→「同意する」</li>
-            <li>数分かかります。完了まで待ちましょう</li>
-          </ul>
-          <h4>確認コマンド</h4>
-          <code class="cmd">git --version</code>
-          <p>バージョン番号が表示されれば成功！</p>
-        </div>
-
-        <div class="os-content win">
-          <span class="os-label win">Windows</span>
-          <h4>公式サイトからダウンロード</h4>
-          <p><a href="https://gitforwindows.org/" target="_blank">gitforwindows.org</a></p>
-          <ul>
-            <li>「Download」ボタンをクリック</li>
-            <li>.exe ファイルを実行（設定はすべてデフォルトでOK）</li>
-          </ul>
-          <h4>確認方法</h4>
-          <p>コマンドプロンプト または PowerShell を開いて：</p>
-          <code class="cmd">git --version</code>
-          <p>バージョン番号が表示されれば成功！</p>
-        </div>
-      </div>
+    <div class="item-content" id="con-1-1">
+      <p class="item-description">選択肢は1種類だけです。そのままダウンロードしてください。</p>
     </div>
+  </div>
 
-    <!-- STEP 4 -->
-    <div class="step-card" id="step-4">
-      <div class="step-header" onclick="toggleDetail(4)">
-        <div class="step-badge"><span class="badge-num">4</span><span>設定</span></div>
-        <div class="step-info">
-          <div class="step-title">クロコの初期設定・ログイン</div>
-          <div class="step-desc">アカウント作成・プラン選択・ログイン</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(4)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(4)">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-4">
-        <h4>注意ポイント</h4>
-        <div class="warn">⚠️ <strong>年払いに注意！</strong> 月払いを選んでください</div>
-        <div class="warn">⚠️ <strong>CLI版を間違えてインストールしないこと！</strong> デスクトップアプリ版（クロコ）を使います</div>
-        <div class="warn">⚠️ <strong>Web版（ブラウザ版）は今回は使いません</strong></div>
-        <h4>手順</h4>
-        <ul>
-          <li>インストールしたClaudeアプリを起動</li>
-          <li>「Anthropicアカウントでログイン」または「Googleでログイン」</li>
-          <li>アカウントがない場合は新規作成</li>
-          <li>プランは無料プランでOK（後から変更可能）</li>
-        </ul>
-        <div class="tip">💡 ここで詰まったらサバ缶を呼んでください。人によって環境が違います！</div>
-      </div>
+  <div class="checklist-item os-item-win" id="item-1-2">
+    <div class="item-header" onclick="toggleItem('1-2')">
+      <div class="checkbox" id="chk-1-2"></div>
+      <span class="item-title" id="ttl-1-2">自分のPCに合った Windows 版をダウンロードする</span>
+      <span class="badge badge-win">🪟 Win</span>
+      <span class="expand-arrow" id="arr-1-2">▼</span>
     </div>
-
-    <!-- STEP 5 -->
-    <div class="step-card" id="step-5">
-      <div class="step-header" onclick="toggleDetail(5)">
-        <div class="step-badge"><span class="badge-num">5</span><span>確認</span></div>
-        <div class="step-info">
-          <div class="step-title">起動・動作確認</div>
-          <div class="step-desc">ドック追加・実際に動かしてみる</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(5)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(5)">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-5">
-        <h4>ドックに追加（Mac）</h4>
-        <ul>
-          <li>Claudeアプリを右クリック → 「オプション」→「Dockに保存」</li>
-        </ul>
-
-        <h4>最初のプロンプト（動作確認）</h4>
-        <p>以下を順番にClaudeに入力してみましょう：</p>
-
-        <p><strong>① デスクトップ整理</strong></p>
-        <div class="cmd">私のデスクトップにあるファイルの一覧を作成してください。ファイル拡張子別に数とサイズの合計を出してください。</div>
-
-        <p><strong>② 絞り込み</strong></p>
-        <div class="cmd">それではサイズの大きいファイルを上から3つリストアップしてください</div>
-
-        <p><strong>③ 整理実行</strong></p>
-        <div class="cmd">デスクトップにあるファイルを年ごとのフォルダを作ってファイルを移動してください</div>
-
-        <div class="tip">💡 エージェント型AIの基本のキ！ファイルが実際に動くのを確認しましょう</div>
-
-        <h4>余裕があれば挑戦！</h4>
-        <ul>
-          <li>Claude in Chrome（ブラウザ操作の拡張機能）</li>
-          <li>Googleドライブの調査と操作</li>
-          <li>GitHubアカウント作成から開発体験</li>
-        </ul>
-      </div>
+    <div class="item-content" id="con-1-2">
+      <p class="item-description">Intel か ARM か分からない場合：</p>
+      <p class="item-description">Windowsキー + R →「msinfo32」と入力 → Enter</p>
+      <div class="tip">💡 「システムの種類」の欄を確認してAIに質問しましょう</div>
     </div>
+  </div>
 
-    <!-- STEP 6 -->
-    <div class="step-card" id="step-6">
-      <div class="step-header" onclick="toggleDetail(6)">
-        <div class="step-badge"><span class="badge-num">6</span><span>完了</span></div>
-        <div class="step-info">
-          <div class="step-title">放課後・質問タイム</div>
-          <div class="step-desc">自由に試す・疑問を解消する時間</div>
-        </div>
-        <div class="step-actions">
-          <button class="detail-toggle" onclick="event.stopPropagation(); toggleDetail(6)">詳細 ▾</button>
-          <button class="check-btn" onclick="event.stopPropagation(); toggleDone(6)">✓</button>
-        </div>
-      </div>
-      <div class="step-detail" id="detail-6">
-        <h4>この時間でできること</h4>
-        <ul>
-          <li>気になったことを自由に試す</li>
-          <li>サバ缶への個別質問</li>
-          <li>他の参加者と情報交換</li>
-          <li>次回オフ会の日程確認</li>
-        </ul>
-        <div class="tip">💡 リベシティのノウハウ図書館に使い方を投稿するとポイントがもらえます！</div>
-      </div>
+  <!-- ===== STEP 2 ===== -->
+  <div class="section-label">STEP 3　インストール</div>
+
+  <div class="checklist-item os-item-mac" id="item-2-0">
+    <div class="item-header" onclick="toggleItem('2-0')">
+      <div class="checkbox" id="chk-2-0"></div>
+      <span class="item-title" id="ttl-2-0">アイコンをアプリケーションフォルダへドラッグ＆ドロップ</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-2-0">▼</span>
     </div>
+    <div class="item-content" id="con-2-0">
+      <p class="item-description">.dmg ファイルを開くと「Claude」と「Applications」が表示されます。
+Claudeアイコンを Applications フォルダへドラッグ＆ドロップしてください。</p>
+      <div class="tip">💡 完了したら .dmg ファイルはゴミ箱に捨ててOKです</div>
+    </div>
+  </div>
 
-  </div><!-- /stepList -->
+  <div class="checklist-item os-item-win" id="item-2-1">
+    <div class="item-header" onclick="toggleItem('2-1')">
+      <div class="checkbox" id="chk-2-1"></div>
+      <span class="item-title" id="ttl-2-1">Claude.exe をダブルクリックしてインストール</span>
+      <span class="badge badge-win">🪟 Win</span>
+      <span class="expand-arrow" id="arr-2-1">▼</span>
+    </div>
+    <div class="item-content" id="con-2-1">
+      <p class="item-description">ダウンロードした Claude.exe をダブルクリックするだけで完了します。
+画面の指示に従ってください。</p>
+      <div class="tip">💡 インストール後は .exe ファイルを削除してOKです</div>
+    </div>
+  </div>
 
-  <div class="complete-banner" id="completeBanner">
+  <!-- ===== STEP 3 ===== -->
+  <div class="section-label">STEP 4　Git をインストール</div>
+
+  <div class="checklist-item os-item-mac" id="item-3-0">
+    <div class="item-header" onclick="toggleItem('3-0')">
+      <div class="checkbox" id="chk-3-0"></div>
+      <span class="item-title" id="ttl-3-0">ターミナルを起動する</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-3-0">▼</span>
+    </div>
+    <div class="item-content" id="con-3-0">
+      <p class="item-description">⌘（Command）＋ スペース を押して Spotlight を開き、「ターミナル」と入力して Enter を押します。</p>
+    </div>
+  </div>
+
+  <div class="checklist-item os-item-mac" id="item-3-1">
+    <div class="item-header" onclick="toggleItem('3-1')">
+      <div class="checkbox" id="chk-3-1"></div>
+      <span class="item-title" id="ttl-3-1">xcode-select --install を実行して同意する</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-3-1">▼</span>
+    </div>
+    <div class="item-content" id="con-3-1">
+      <p class="item-description">ターミナルに以下を入力して Enter を押します：</p>
+      <code class="cmd">xcode-select --install</code>
+      <p class="item-description">ポップアップが出たら「インストール」→「同意する」を押してください。数分かかります。</p>
+    </div>
+  </div>
+
+  <div class="checklist-item os-item-mac" id="item-3-2">
+    <div class="item-header" onclick="toggleItem('3-2')">
+      <div class="checkbox" id="chk-3-2"></div>
+      <span class="item-title" id="ttl-3-2">git --version で確認する（Mac）</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-3-2">▼</span>
+    </div>
+    <div class="item-content" id="con-3-2">
+      <code class="cmd">git --version</code>
+      <p class="item-description">バージョン番号が表示されれば成功です！</p>
+    </div>
+  </div>
+
+  <div class="checklist-item os-item-win" id="item-3-3">
+    <div class="item-header" onclick="toggleItem('3-3')">
+      <div class="checkbox" id="chk-3-3"></div>
+      <span class="item-title" id="ttl-3-3">Git for Windows をダウンロード・インストールする</span>
+      <span class="badge badge-win">🪟 Win</span>
+      <span class="expand-arrow" id="arr-3-3">▼</span>
+    </div>
+    <div class="item-content" id="con-3-3">
+      <div class="content-links">
+        <a class="content-link" href="https://gitforwindows.org/" target="_blank">🔗 gitforwindows.org を開く</a>
+      </div>
+      <p class="item-description">「Download」ボタンをクリックして .exe ファイルを実行します。
+設定はすべてデフォルト（そのまま Next）でOKです。</p>
+    </div>
+  </div>
+
+  <div class="checklist-item os-item-win" id="item-3-4">
+    <div class="item-header" onclick="toggleItem('3-4')">
+      <div class="checkbox" id="chk-3-4"></div>
+      <span class="item-title" id="ttl-3-4">git --version で確認する（Windows）</span>
+      <span class="badge badge-win">🪟 Win</span>
+      <span class="expand-arrow" id="arr-3-4">▼</span>
+    </div>
+    <div class="item-content" id="con-3-4">
+      <p class="item-description">コマンドプロンプト または PowerShell を開いて：</p>
+      <code class="cmd">git --version</code>
+      <p class="item-description">バージョン番号が表示されれば成功です！</p>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4 ===== -->
+  <div class="section-label">STEP 5　ログイン・初期設定</div>
+
+  <div class="checklist-item" id="item-4-0">
+    <div class="item-header" onclick="toggleItem('4-0')">
+      <div class="checkbox" id="chk-4-0"></div>
+      <span class="item-title" id="ttl-4-0">インストールした Claude アプリを起動する</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-4-0">▼</span>
+    </div>
+    <div class="item-content" id="con-4-0">
+      <div class="warn">⚠️ ここからは人によって環境が違います。詰まったらサバ缶を呼んでください！</div>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-4-1">
+    <div class="item-header" onclick="toggleItem('4-1')">
+      <div class="checkbox" id="chk-4-1"></div>
+      <span class="item-title" id="ttl-4-1">アカウントを作成 または ログインする</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-4-1">▼</span>
+    </div>
+    <div class="item-content" id="con-4-1">
+      <div class="warn">⚠️ <strong>年払いに注意！</strong> プランを選ぶ画面では「月払い」を選んでください</div>
+      <div class="warn">⚠️ <strong>CLI版に注意！</strong> デスクトップアプリ版（クロコ）を使います。CLI版は今回不要</div>
+      <div class="warn">⚠️ <strong>Web版（ブラウザ版）は今回使いません</strong></div>
+      <div class="tip">💡 Googleアカウントでのログインが一番かんたんです</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5 ===== -->
+  <div class="section-label">STEP 6　起動・動作確認</div>
+
+  <div class="checklist-item os-item-mac" id="item-5-0">
+    <div class="item-header" onclick="toggleItem('5-0')">
+      <div class="checkbox" id="chk-5-0"></div>
+      <span class="item-title" id="ttl-5-0">クロコをドックに追加する</span>
+      <span class="badge badge-mac"> Mac</span>
+      <span class="expand-arrow" id="arr-5-0">▼</span>
+    </div>
+    <div class="item-content" id="con-5-0">
+      <p class="item-description">Dock のClaudeアイコンを右クリック →「オプション」→「Dockに保存」を選択</p>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-5-1">
+    <div class="item-header" onclick="toggleItem('5-1')">
+      <div class="checkbox" id="chk-5-1"></div>
+      <span class="item-title" id="ttl-5-1">プロンプト①：デスクトップのファイル一覧を出す</span>
+      <span class="badge badge-required">必須</span>
+      <span class="expand-arrow" id="arr-5-1">▼</span>
+    </div>
+    <div class="item-content" id="con-5-1">
+      <p class="item-description">クロコに以下を入力してください：</p>
+      <code class="cmd">私のデスクトップにあるファイルの一覧を作成してください。ファイル拡張子別に数とサイズの合計を出してください。</code>
+      <div class="tip">💡 エージェント型AIの基本のキ！ファイルが実際に操作されるのを確認しましょう</div>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-5-2">
+    <div class="item-header" onclick="toggleItem('5-2')">
+      <div class="checkbox" id="chk-5-2"></div>
+      <span class="item-title" id="ttl-5-2">プロンプト②：サイズの大きいファイルTop3を出す</span>
+      <span class="expand-arrow" id="arr-5-2">▼</span>
+    </div>
+    <div class="item-content" id="con-5-2">
+      <code class="cmd">それではサイズの大きいファイルを上から3つリストアップしてください</code>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-5-3">
+    <div class="item-header" onclick="toggleItem('5-3')">
+      <div class="checkbox" id="chk-5-3"></div>
+      <span class="item-title" id="ttl-5-3">プロンプト③：年ごとのフォルダに整理する</span>
+      <span class="expand-arrow" id="arr-5-3">▼</span>
+    </div>
+    <div class="item-content" id="con-5-3">
+      <code class="cmd">デスクトップにあるファイルを年ごとのフォルダを作ってファイルを移動してください</code>
+      <div class="warn">⚠️ ファイルが実際に移動します。実行前に内容を確認しましょう</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 6 ===== -->
+  <div class="section-label">STEP 7　放課後・チャレンジタイム</div>
+
+  <div class="checklist-item" id="item-6-0">
+    <div class="item-header" onclick="toggleItem('6-0')">
+      <div class="checkbox" id="chk-6-0"></div>
+      <span class="item-title" id="ttl-6-0">Claude in Chrome を試す（ブラウザ操作）</span>
+      <span class="expand-arrow" id="arr-6-0">▼</span>
+    </div>
+    <div class="item-content" id="con-6-0">
+      <p class="item-description">Chrome拡張機能でブラウザを操作させます。興味があれば挑戦してみましょう！</p>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-6-1">
+    <div class="item-header" onclick="toggleItem('6-1')">
+      <div class="checkbox" id="chk-6-1"></div>
+      <span class="item-title" id="ttl-6-1">Google ドライブを操作させてみる</span>
+      <span class="expand-arrow" id="arr-6-1">▼</span>
+    </div>
+    <div class="item-content" id="con-6-1">
+      <p class="item-description">外部アプリとの連携を体験します。Googleドライブの調査・ファイル操作を試してみましょう。</p>
+    </div>
+  </div>
+
+  <div class="checklist-item" id="item-6-2">
+    <div class="item-header" onclick="toggleItem('6-2')">
+      <div class="checkbox" id="chk-6-2"></div>
+      <span class="item-title" id="ttl-6-2">GitHub アカウント作成・開発体験</span>
+      <span class="expand-arrow" id="arr-6-2">▼</span>
+    </div>
+    <div class="item-content" id="con-6-2">
+      <p class="item-description">GitHubアカウントの作成からはじめて、簡単な開発体験ができると最高です！</p>
+    </div>
+  </div>
+
+  <!-- 完了バナー -->
+  <div class="completion-banner" id="completionBanner">
     <h3>🎉 全ステップ完了！</h3>
-    <p>おめでとうございます！クロコが使えるようになりましたね。</p>
+    <p>おめでとうございます！クロコが使えるようになりましたね。<br>放課後タイムも楽しんでいってください！</p>
   </div>
 
-  <button class="reset-btn" onclick="resetAll()">進捗をリセット</button>
+</div><!-- /checklist-container -->
 
-</main>
+<!-- リセットモーダル -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>進捗をリセット</h3>
+    <p>チェックした内容がすべてクリアされます。本当にリセットしますか？</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="hideResetModal()">キャンセル</button>
+      <button class="btn-reset" onclick="resetAll()">リセットする</button>
+    </div>
+  </div>
+</div>
 
-<script>
-  const TOTAL = 7;
-  const KEY_PREFIX = 'step_done_';
-  const OS_KEY = 'selected_os';
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  // OS管理
-  function setOS(os) {
-    localStorage.setItem(OS_KEY, os);
-    applyOS(os);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvLPMFCB7tmdwb4R8fkKJMJtY_IcIZn7A",
+    authDomain: "claude-code-support.firebaseapp.com",
+    projectId: "claude-code-support",
+    storageBucket: "claude-code-support.firebasestorage.app",
+    messagingSenderId: "583613613483",
+    appId: "1:583613613483:web:3df2399e98793e91673e3c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let currentUser = null;
+
+  // 全チェックボックスID
+  const ALL_ITEMS = [
+    '0-0','0-1','0-2','0-3','0-4','0-5',
+    'ac-0','ac-1','ac-2','ac-3',
+    '1-0','1-1','1-2',
+    '2-0','2-1',
+    '3-0','3-1','3-2','3-3','3-4',
+    '4-0','4-1',
+    '5-0','5-1','5-2','5-3',
+    '6-0','6-1','6-2'
+  ];
+
+  // OS別アイテム
+  const MAC_ONLY = ['1-1','2-0','3-0','3-1','3-2','5-0'];
+  const WIN_ONLY = ['1-2','2-1','3-3','3-4'];
+
+  let checked = JSON.parse(localStorage.getItem('steps_checked') || '{}');
+  let currentOS = localStorage.getItem('steps_os') || null;
+  let showOnlyUnchecked = false;
+
+  // ===== OS選択 =====
+  window.selectOS = function(os) {
+    currentOS = os;
+    localStorage.setItem('steps_os', os);
+    document.getElementById('osSelection').style.display = 'none';
+    const container = document.getElementById('checklistContainer');
+    container.classList.add('visible');
+    container.className = 'checklist-container visible show-' + os;
+    document.getElementById('macToggle').classList.toggle('active', os === 'mac');
+    document.getElementById('winToggle').classList.toggle('active', os === 'win');
+    renderAll();
+    if (currentUser) saveToFirestore();
+  };
+
+  // ===== チェックアイテムのトグル =====
+  window.toggleItem = function(id) {
+    const hasContent = document.getElementById('con-' + id);
+    if (hasContent) {
+      const content = document.getElementById('con-' + id);
+      const arrow = document.getElementById('arr-' + id);
+      const isOpen = content.classList.toggle('open');
+      arrow && arrow.classList.toggle('open', isOpen);
+    }
+  };
+
+  window.toggleCheck = function(id, e) {
+    e && e.stopPropagation();
+    checked[id] = !checked[id];
+    localStorage.setItem('steps_checked', JSON.stringify(checked));
+    renderItem(id);
+    updateProgress();
+    if (currentUser) saveToFirestore();
+  };
+
+  // チェックボックスをクリックで完了
+  document.querySelectorAll('.checkbox').forEach(chk => {
+    chk.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.id.replace('chk-', '');
+      checked[id] = !checked[id];
+      localStorage.setItem('steps_checked', JSON.stringify(checked));
+      renderItem(id);
+      updateProgress();
+      if (currentUser) saveToFirestore();
+    });
+  });
+
+  // ===== 各アイテムの表示更新 =====
+  function renderItem(id) {
+    const item = document.getElementById('item-' + id);
+    const chk  = document.getElementById('chk-' + id);
+    const ttl  = document.getElementById('ttl-' + id);
+    if (!item) return;
+    const isDone = !!checked[id];
+    item.classList.toggle('checked', isDone);
+    if (chk)  chk.classList.toggle('checked', isDone);
+    if (chk)  chk.textContent = isDone ? '✓' : '';
+    if (ttl)  ttl.classList.toggle('done', isDone);
+    if (showOnlyUnchecked) item.classList.toggle('hidden', isDone);
   }
 
-  function applyOS(os) {
-    document.querySelectorAll('.os-content').forEach(el => el.classList.remove('show'));
-    document.querySelectorAll('.' + os).forEach(el => el.classList.add('show'));
-    document.getElementById('macBtn').classList.toggle('active', os === 'mac');
-    document.getElementById('winBtn').classList.toggle('active', os === 'win');
-  }
-
-  // ステップ完了トグル
-  function toggleDone(idx) {
-    const card = document.getElementById('step-' + idx);
-    const isDone = card.classList.toggle('done');
-    localStorage.setItem(KEY_PREFIX + idx, isDone ? '1' : '');
+  function renderAll() {
+    ALL_ITEMS.forEach(id => renderItem(id));
     updateProgress();
   }
 
-  // 詳細展開トグル
-  function toggleDetail(idx) {
-    const detail = document.getElementById('detail-' + idx);
-    const btn = document.querySelector('#step-' + idx + ' .detail-toggle');
-    const isOpen = detail.classList.toggle('open');
-    if (btn) btn.textContent = isOpen ? '閉じる ▴' : '詳細 ▾';
-  }
-
-  // 進捗更新
+  // ===== 進捗 =====
   function updateProgress() {
-    let done = 0;
-    for (let i = 0; i < TOTAL; i++) {
-      if (localStorage.getItem(KEY_PREFIX + i) === '1') done++;
-    }
-    const pct = Math.round(done / TOTAL * 100);
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressPct').textContent = pct + '%';
-    document.getElementById('progressCount').textContent = done + ' / ' + TOTAL;
-    document.getElementById('completeBanner').classList.toggle('show', done === TOTAL);
+    const visibleItems = getVisibleItems();
+    const doneCount = visibleItems.filter(id => checked[id]).length;
+    const total = visibleItems.length;
+    const pct = total > 0 ? Math.round(doneCount / total * 100) : 0;
+    const circumference = 326.7;
+    const offset = circumference - (circumference * pct / 100);
+    const ring = document.getElementById('progressRing');
+    ring.style.strokeDashoffset = offset;
+    ring.classList.toggle('complete', pct === 100);
+    document.getElementById('progressCount').textContent = doneCount + '/' + total;
+    document.getElementById('completionBanner').classList.toggle('visible', pct === 100 && total > 0);
   }
 
-  // リセット
-  function resetAll() {
-    if (!confirm('進捗をリセットしますか？')) return;
-    for (let i = 0; i < TOTAL; i++) {
-      localStorage.removeItem(KEY_PREFIX + i);
-      document.getElementById('step-' + i).classList.remove('done');
-      const detail = document.getElementById('detail-' + i);
-      detail.classList.remove('open');
-      const btn = document.querySelector('#step-' + i + ' .detail-toggle');
-      if (btn) btn.textContent = '詳細 ▾';
-    }
-    updateProgress();
+  function getVisibleItems() {
+    if (!currentOS) return ALL_ITEMS;
+    return ALL_ITEMS.filter(id => {
+      if (currentOS === 'mac' && WIN_ONLY.includes(id)) return false;
+      if (currentOS === 'win' && MAC_ONLY.includes(id)) return false;
+      return true;
+    });
   }
 
-  // 初期化
-  function init() {
-    const os = localStorage.getItem(OS_KEY) || 'mac';
-    applyOS(os);
-    for (let i = 0; i < TOTAL; i++) {
-      if (localStorage.getItem(KEY_PREFIX + i) === '1') {
-        document.getElementById('step-' + i).classList.add('done');
+  // ===== フィルター =====
+  window.toggleFilter = function() {
+    showOnlyUnchecked = !showOnlyUnchecked;
+    document.getElementById('filterBtn').classList.toggle('active', showOnlyUnchecked);
+    renderAll();
+  };
+
+  // ===== リセット =====
+  window.showResetModal = function() {
+    document.getElementById('resetModal').classList.add('visible');
+  };
+  window.hideResetModal = function() {
+    document.getElementById('resetModal').classList.remove('visible');
+  };
+  window.resetAll = function() {
+    checked = {};
+    localStorage.removeItem('steps_checked');
+    hideResetModal();
+    renderAll();
+    if (currentUser) saveToFirestore();
+  };
+
+  // ===== Firebase認証 =====
+  document.getElementById('loginBtn')?.addEventListener('click', () => {
+    signInWithPopup(auth, new GoogleAuthProvider());
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    const authArea = document.getElementById('authArea');
+    if (user) {
+      authArea.innerHTML = `
+        <div class="user-info">
+          ${user.photoURL ? `<img class="user-avatar" src="${user.photoURL}">` : ''}
+          <span class="user-name">${user.displayName || user.email}</span>
+          <button class="logout-btn" id="logoutBtn">ログアウト</button>
+        </div>`;
+      document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+      await loadFromFirestore();
+    } else {
+      authArea.innerHTML = `<button class="login-btn" id="loginBtn">Googleでログイン</button>`;
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, new GoogleAuthProvider());
+      });
+    }
+  });
+
+  // ===== Firestore保存・読み込み =====
+  async function saveToFirestore() {
+    if (!currentUser) return;
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid), {
+        steps_checked: checked,
+        steps_os: currentOS,
+        updatedAt: new Date()
+      }, { merge: true });
+      document.getElementById('syncBadge').style.display = 'inline';
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadFromFirestore() {
+    if (!currentUser) return;
+    try {
+      const snap = await getDoc(doc(db, 'users', currentUser.uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.steps_checked) {
+          checked = data.steps_checked;
+          localStorage.setItem('steps_checked', JSON.stringify(checked));
+        }
+        if (data.steps_os && !currentOS) {
+          currentOS = data.steps_os;
+          localStorage.setItem('steps_os', currentOS);
+        }
       }
-    }
-    updateProgress();
+      document.getElementById('syncBadge').style.display = 'inline';
+    } catch(e) { console.error(e); }
+    if (currentOS) selectOS(currentOS);
+    else renderAll();
   }
 
-  init();
+  // ===== 初期化 =====
+  if (currentOS) {
+    selectOS(currentOS);
+  } else {
+    renderAll();
+  }
 </script>
 
 </body>
