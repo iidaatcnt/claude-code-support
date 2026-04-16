@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ一括インポート | 管理ツール</title>
+  <style>
+    :root { --primary: #f5a623; --success: #27ae60; --warning: #e74c3c; --text: #1a1a1a; --subtext: #888; --border: #e8e8e4; --bg: #f4f4f0; --surface: #fff; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; padding: 40px 20px; }
+    .card { max-width: 700px; margin: 0 auto; background: var(--surface); border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    .sub { color: var(--subtext); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+    .login-area { margin-bottom: 24px; }
+    .btn { display: inline-block; padding: 12px 28px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .btn-google { background: #fff; border: 2px solid var(--border); color: var(--text); }
+    .btn-import { background: var(--primary); color: white; width: 100%; padding: 16px; font-size: 16px; margin-top: 16px; }
+    .btn-import:hover { background: #e8941a; }
+    .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
+    .user-badge { background: #f0f8f0; border: 1px solid #c3e6cb; border-radius: 8px; padding: 10px 16px; font-size: 14px; color: #155724; margin-bottom: 16px; }
+    .preview { margin: 20px 0; }
+    .preview h3 { font-size: 14px; font-weight: 700; color: var(--subtext); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .faq-row { background: var(--bg); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; gap: 10px; align-items: flex-start; }
+    .faq-series { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+    .s0 { background: #fde8e8; color: #c0392b; }
+    .s1 { background: #e8f4fd; color: #0078d4; }
+    .s2 { background: #e8f8ef; color: #27ae60; }
+    .s3 { background: #fff3cd; color: #856404; }
+    .faq-title { font-size: 13px; color: var(--text); line-height: 1.5; }
+    .log { margin-top: 20px; background: #1a1a1a; color: #f5a623; font-family: monospace; font-size: 13px; padding: 16px; border-radius: 8px; height: 200px; overflow-y: auto; display: none; }
+    .log.show { display: block; }
+    .log-line { margin-bottom: 4px; }
+    .log-ok { color: #2ecc71; }
+    .log-err { color: #e74c3c; }
+    .done-banner { background: #f0faf4; border: 2px solid var(--success); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+    .done-banner h2 { color: var(--success); margin-bottom: 6px; }
+    .warn-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #856404; margin-bottom: 20px; }
+    .count-badge { display: inline-block; background: var(--primary); color: white; border-radius: 99px; padding: 2px 10px; font-size: 13px; font-weight: 700; margin-left: 8px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>FAQ 一括インポート</h1>
+  <p class="sub">リベシティのつぶやきから整理したFAQをFirestoreに一括登録します。<br>Googleログイン後「インポート実行」を押すだけです。</p>
+
+  <div class="warn-box">⚠️ 既存のFAQは削除しません。新規追加のみ行います。重複しないよう注意してください。</div>
+
+  <div class="login-area">
+    <div id="authArea">
+      <button class="btn btn-google" id="loginBtn">🔑 Googleでログイン</button>
+    </div>
+  </div>
+
+  <div class="preview">
+    <h3>インポート予定 <span class="count-badge" id="totalCount">0</span> 件</h3>
+    <div id="previewList"></div>
+  </div>
+
+  <button class="btn btn-import" id="importBtn" disabled>🚀 Firestoreにインポート実行</button>
+
+  <div class="log" id="log"></div>
+  <div class="done-banner" id="doneBanner">
+    <h2>🎉 インポート完了！</h2>
+    <p id="doneMsg"></p>
+    <p style="margin-top:8px;font-size:13px;color:#888;"><a href="admin.html">管理画面で確認 →</a></p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBG1tAKgcjBbht5YYxWdQssiWMlB7yRIc",
+  authDomain: "claude-code-support.firebaseapp.com",
+  projectId: "claude-code-support",
+  storageBucket: "claude-code-support.firebasestorage.app",
+  messagingSenderId: "819245008964",
+  appId: "1:819245008964:web:ead21e5842189d1506d411"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ===== FAQデータ =====
+const FAQ_DATA = [
+
+  // ── インストール・セットアップ ──────────────────
+  {
+    series: 'クロコのよくある質問',
+    title: 'クロコがちゃんとインストールできているか確認したい',
+    tags: ['インストール', '確認'],
+    body: `「私のデスクトップにあるファイルの一覧を作成してください」と入力してみてください。\n\nクロコ（エージェント型AI）なら自分でパソコンを操作して一覧を作ってくれます。\nただ操作手順を教えてくるだけならチャット型AIです。\n\nCoworkタブが表示されているかも確認しましょう。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'インストール時にGitのインストールを要求されて怖い',
+    tags: ['Git', 'インストール'],
+    body: `普通の動作です。怖くありません。\n\nClaude Codeでプロジェクトフォルダを作るのにGitが必要です。指示に従ってGitをインストールしてください。\n拒否しても後から必ず要求されます。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'CLI版をインストールしてしまった',
+    tags: ['CLI', 'インストール'],
+    body: `そのまま放置して、改めてデスクトップアプリ版（クロコ）をインストールしてください。\n\nインターネット上にはCLI版の情報が多いため、間違ってそちらをインストールしてしまう方が多いです。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'インストール中に「後で」と「今すぐ」が出てきた。どっちを選ぶ？',
+    tags: ['CLI', 'インストール', '選択'],
+    body: `「後で」を選んでください。\n\nこの画面はCLI版のインストールへの誘導です。初心者には不要なので飛ばしてOKです。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: '誕生日の入力を要求された。本物ですか？',
+    tags: ['誕生日', 'インストール'],
+    body: `本物です。\n\n2026年4月7日以降の仕様変更で、誰でもインストール時に誕生日の入力が必要になりました。\n不審に思うのは良い傾向ですが、この場合は安心して入力してください。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'デスクトップのショートカットをクリックするとインストールが始まる',
+    tags: ['Windows', 'ショートカット', '起動'],
+    body: `それは起動ショートカットではありません。削除してアプリから直接起動してください。\n\nWindowsユーザーがMacBookを使い始めた際に混乱しやすいポイントです。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: '2つアイコンがあるけどどっちがクロコ？',
+    tags: ['アイコン', 'デスクトップアプリ'],
+    body: `白いアイコンがデスクトップアプリ版（クロコ）です。\n\n・白色 = デスクトップアプリ版（クロコ）← これ！\n・青色 = CLI版（ターミナルで動くやつ）\n\nリベシティで推奨しているのは白いほうです。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'MacBookのOSアップデート中に電源コードが必要と言われた',
+    tags: ['Mac', 'アップデート', '電源'],
+    body: `バッテリー残量が少ないと、アップデート中の電源切断リスクを防ぐために警告が表示されます。\n\n誰かから電源コードを借りて、コードを繋いだ状態でアップデートしてください。\nアップデートには1時間以上かかることがあります。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'MacBookのPINコードがわからなくてロックされた',
+    tags: ['Mac', 'PIN', 'ロック解除'],
+    body: `事前に復旧キーを1Passwordなどのパスワードマネージャーに保存しておくと解除できます。\n\n今後のために、復旧キーは安全な場所に保管しておきましょう。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'Claude.dmgを起動するとインストールできない（Macの場合）',
+    tags: ['Mac', 'インストール', 'OSアップデート'],
+    body: `MacBookのOSアップデートを忘れていませんか？\n\nアップデートが終わってから再トライしてください。アップデートには1時間以上かかることがあります。今日は諦めて明日やりましょう。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'WindowsでClaude.exeを起動すると「管理者権限がない」と言われる',
+    tags: ['Windows', '管理者権限', 'インストール'],
+    body: `Windowsの権限設定の問題です。\n\nWindowsキー + Shift + S でスクリーンショットを撮って、AIに送って「どうすればいいですか？」と質問するのが一番早い解決方法です。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'SMSが届かない',
+    tags: ['SMS', '認証'],
+    body: `クロコ側の問題ではなく、電話会社側の問題です。\n\n別の電話番号で認証するか、別の認証方法を試してください。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'スマホ版の広告が出てくる。インストールしていいの？',
+    tags: ['スマホ', '偽物'],
+    body: `スマホ版のクロコはありません。偽物の可能性があります。\n\nクロコ（Claude Codeデスクトップアプリ）はパソコン専用です。スマホアプリはインストールしないでください。\nパソコンで公式サイト（claude.com/download）からダウンロードしてください。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'インストール画面が手順書と違う（偽物？）',
+    tags: ['偽物', 'インストール'],
+    body: `インストールを中断してください。\n\n公式サイト（claude.com/download）から正しくダウンロードしたか確認してください。手順書と画面が違う場合は、クロコではない可能性があります。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'CoworkタブがWindowsで表示されない',
+    tags: ['Windows', 'Cowork', 'WSL'],
+    body: `仮想マシンプラットフォームとWSL（Windows Subsystem for Linux）をオンにすれば解決します。\n\n詳しい手順はノウハウ図書館に解説があります。\n→ library.libecity.com/articles/01KP7HQTRYGFP0GAREWT`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: '「チャット｜Cowork｜コード」タブがない',
+    tags: ['Cowork', 'プラン', 'タブ'],
+    body: `Freeプランになっている可能性が高いです。\n\nProプラン以上を契約すると表示されます。1ヶ月だけでもProプランを申し込んでみてください。`
+  },
+
+  // ── 料金・トークン ──────────────────────────────
+  {
+    series: 'クロコのよくある質問',
+    title: '料金プランはどれを選べばいい？',
+    tags: ['料金', 'プラン'],
+    body: `まずProプランを月払いで始めてください。\n\n・Pro: $22/月 ← おすすめ\n・Max 5x: $110/月\n・Max 20x: $220/月\n\n年払い・Teamプラン・Enterpriseは今は考えなくてOKです。\n※2026年4月から$20→$22に値上がりしています。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'MaxプランとProプランどっちがいい？',
+    tags: ['Max', 'Pro', 'プラン'],
+    body: `まずProプランから始めてください。\n\n・必要になったらすぐMaxに変更できる\n・トークンに関する知見が身につく\n・思ったより使わないリスクがある\n\nProで足りなくなってからMaxを検討すれば十分です。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'Proプランでトークンが足りなくなったら？',
+    tags: ['トークン', '追加購入'],
+    body: `追加使用量（デポジット）でトークンを補充できます。Maxプランに変えなくてOKです。\n\nトークンのリセットまで待てない時だけ継ぎ足すイメージです。頻繁に補充するとトータルで高くつくので注意。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: '追加使用量って何？',
+    tags: ['追加使用量', 'トークン'],
+    body: `トークンが制限に達した時、プランをアップグレードせずにトークンをちょい足し購入できる仕組みです。\n\nリセットまで待てない時間を買うイメージです。頻繁に使うとトータルでは高くつくので注意しましょう。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'トークンの消費が他の人より早い気がする',
+    tags: ['トークン', '消費'],
+    body: `バグや呪いではありません。ユーザーが意識していないところで何かにトークンを使っています。\n\n使用量を計測しましょう。claude.ai/settings/usage で確認できます。スマホアプリでもチェックできます。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'スマホでClaudeを使うとMacのトークンも減るの？',
+    tags: ['トークン', 'スマホ'],
+    body: `減ります。\n\nトークンはアカウント単位で管理されます。スマホ・パソコン・Web版・デスクトップアプリ版を問わず、使った分だけトークンを消費します。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: '使用制限が解除される時刻になっても解除されない',
+    tags: ['トークン', '制限'],
+    body: `画面のメッセージをよく読んでください。\n\n「週間制限のうち75%を使用しました」は制限ではなく警告です。実際にはクロコは使用できます。\n制限されているように見えてもパニックにならず、試してみましょう。`
+  },
+  {
+    series: 'クロコのオフ会の参加コツ',
+    title: 'トークンのリセットをうまく活用したい',
+    tags: ['トークン', 'リセット', 'オフ会'],
+    body: `オフ会の時間から逆算してClaudeにメッセージを送っておきましょう。\n\nトークンは5時間でリセットされます。\n\n例）10時オフ会の場合\n・朝6時にメッセージを送る\n→ 11時と16時にリセットされる\n→ オフ会中に2回リセットのチャンスあり！\n\n早起きは三文の徳です。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'トークン節約の一番シンプルな方法は？',
+    tags: ['トークン', '節約', 'モデル'],
+    body: `軽量なモデルを使うことです。\n\n性能比：Opus（5）＞ Sonnet（3）＞ Haiku（1）\nトークン消費：Haiku は Sonnet の約1/2\n\n最新技術を使いたい時はOpus、普段の雑用はHaikuが経済的です。`
+  },
+
+  // ── 使い方・活用 ──────────────────────────────
+  {
+    series: 'クロコのよくある質問',
+    title: 'ClaudeチャットとCoworkはどう使い分ける？',
+    tags: ['Chat', 'Cowork', '使い分け'],
+    body: `迷ったらClaudeチャットを使えばOKです。\n\nClaudeが会話の内容から判断して、必要であればCoworkへ誘導してくれます。\n自分で判断しなくて大丈夫です。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'インストールしたが何に使えばいいかわからない',
+    tags: ['活用', '使い方', '初心者'],
+    body: `まずデスクトップのファイル整理から始めましょう。\n\n「私のデスクトップにあるファイルの一覧を作成してください。ファイル拡張子別に数とサイズの合計を出してください。」\n\n他の人の事例を参考にするには：\nつぶやき＞みんなのつぶやき＞つぶやき検索で「#エージェント型AI活用事例」で検索してみてください。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'クロコで作ったWebアプリをスマホで見れない',
+    tags: ['localhost', 'スマホ', 'デプロイ'],
+    body: `localhost:5173 などのURLはそのパソコンでしか見られません。\n\nインターネット（Vercel・Firebase Hosting など）にアップすれば、スマホを含め誰でもどこからでも見られるようになります。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'CoworkのタスクのタイトルをEnglishから日本語に変えたい',
+    tags: ['Cowork', 'タイトル', '日本語'],
+    body: `後から変更できます。\n\n・Windowsの人：右クリック\n・Macの人：2本指でクリック\n\nで入力画面が開きます。日本語のタイトルに変更してください。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'CoworkでGoogleドライブのファイルを削除できない',
+    tags: ['Cowork', 'Googleドライブ', '削除'],
+    body: `仕様です。\n\nCowork＝「安全な隔離環境」のため、削除などの危険な操作は禁止されています。\n\nClaude Code（クロコ）から操作する場合は、あなたのマシンに直接アクセスするため自由に操作できます。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'MacbookをとじたらClaudeの処理はどうなるの？',
+    tags: ['MacBook', '処理中断', '再開'],
+    body: `基本的には再開時にプロンプトを再送信することになります。\n\n大きな仕事をさせる時は、進捗状況をファイル（例：progress.md）に残させておき、再開時に読み込ませてオーダーすると無駄が減ります。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'トークンが限界になったら途中の処理はどうなるの？',
+    tags: ['トークン', '制限', '処理中断'],
+    body: `制限が解除されるまで次の依頼はできません。\n\n途中で制限になった場合、再開時に最初からやり直しになることがあります。\n長い仕事は progress.md などに進捗を残しながら進めるのがおすすめです。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'Claude in Chromeのインストール方法を教えて',
+    tags: ['Claude in Chrome', 'インストール', 'Chrome拡張'],
+    body: `以下の手順でインストールできます。\n\n1. クロコを起動\n2. ユーザー名をクリック\n3. 「アプリと拡張機能を入手」を選択\n4. 画面下の「Claude」をクリック\n5. 「拡張機能を追加」\n6. ピン留めして完了\n\nまたはChromeウェブストアから直接インストールもできます。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'Claude in Chromeで「このページにアクセスできません」エラーが出る',
+    tags: ['Claude in Chrome', 'エラー', 'ドメイン許可'],
+    body: `クロコの設定画面から許可を追加してください。\n\n個別のURLではなく「ドメイン」で指定します。\n例：example.com のように入力すると、そのドメイン全体が許可されます。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'ChatGPTからクロコへの記憶の引き継ぎ方は？',
+    tags: ['ChatGPT', '移行', 'メモリ'],
+    body: `以下の手順で引き継ぎできます。\n\nステップ1：クロコに書いたプロンプトをChatGPT（チャッピー）に渡す\nステップ2：ChatGPTが書いた返事をクロコに渡す\n\nこれでChatGPTのメモリをClaudeにインポートできます。`
+  },
+
+  // ── トラブル解決 ──────────────────────────────
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'クロコが固まっていつまでも終わらない',
+    tags: ['フリーズ', '強制終了'],
+    body: `待ってもダメなら強制終了してください。\n\n・Mac：Option + Command + Esc\n・Win：Ctrl + Shift + Esc\n\nタスクマネージャーが開くので「Claude」を選んで強制終了してください。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'クロコ3兄弟（Chat/Cowork/Code）の切り替えがわかりにくい',
+    tags: ['切り替え', 'ショートカット'],
+    body: `ショートカットキーを使うのが一番楽です。\n\n・Mac：Command + 数字（1・2・3）\n・Win：Ctrl + 数字（1・2・3）\n\nアイコンが小さくて近いので、クリックより確実です。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'GitHubアカウントが作れない（Google認証で弾かれる）',
+    tags: ['GitHub', 'アカウント作成', '認証'],
+    body: `GmailをユーザーIDとしたアカウント作成で解決します。\n\nGitHubはGoogleのOAuth認証で「不適切なユーザー」として弾かれることがあります。\nメールアドレス＋パスワードでの通常登録を試してください。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'チャットが長くなると回答の精度が下がった',
+    tags: ['コンテキスト', '精度', 'チャット'],
+    body: `過去のやり取りが圧縮されたため、精度が落ちています。\n\n対処法：\n日々の履歴を残した「日報.md」のようなファイルをクロコに作ってもらい、新しいチャットを開く時に読み込ませてからオーダーしましょう。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: '大して使ってないのにトークンが激しく減る',
+    tags: ['トークン', '消費', '節約'],
+    body: `必ず何か大した仕事をしています。まめに使用量をチェックしましょう。\n\n原因に心当たりがなければ、使わない時はパソコンの電源を完全に切ってください。\n・Macの場合：Macbookを「閉じる」ではなく、Appleマーク→「システム終了」`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'オフ会当日の朝にバージョンアップがあってメニューが大幅に変わった',
+    tags: ['バージョンアップ', 'メニュー変更', 'オフ会'],
+    body: `クロコはアップデートが非常に早いです。オフ会前には必ずアップデートを確認しましょう。\n\n主な変更例（2026/4/15）：\n・上部の3つのタブが左メニューへ移動\n・「アイデア」としてスキルズが紹介→「カスタマイズページ」として変更\n\n左下の葉っぱマークがアップデートの通知です。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'Googleドライブと連携したのにファイルをコピーできない',
+    tags: ['Googleドライブ', 'コピー', 'Cowork'],
+    body: `基本的にユーザーが手動でできる操作は再現できます。\n\nまず確認してみてください：\n・ファイル一覧は作成できるか？\n・新規ファイルの作成はできるか？\n・そもそも手動では（自分でやれば）コピーできますか？\n\n手動でもコピーできない設定のファイルはクロコでも操作できません。`
+  },
+  {
+    series: 'クロコのインストールはまりどころ',
+    title: 'accept/denyを何度も問われる',
+    tags: ['accept', 'deny', '確認'],
+    body: `デスクトップアプリ版（クロコ）の仕様です。\n\nクロコがあなたのパソコンを操作するたびに確認を求めてきます。英語のメッセージは中学生レベルの内容です。\n\n不安な時はメッセージを丸ごとAIに投げて「これは何をしようとしていますか？」と質問してください。`
+  },
+
+  // ── スキルズ・テクニック ──────────────────────
+  {
+    series: 'クロコのよくある質問',
+    title: 'クロコのSkills（スキルズ）機能とは？',
+    tags: ['Skills', 'スキルズ'],
+    body: `スキルズとは、誰がやっても同じ成果が出せる「魔道書」のような機能です。\n\nプロンプトを考えなくていい。手順が自動化される。誰でも再現できる。\n\nフリーレンで例えると：スキルズ＝魔道書（発動方法が書いてある）\n\nホワイトカラー職の8割を代替する威力があると言われています。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'Macで作ったスキルズはWindowsでも使える？',
+    tags: ['Skills', 'Mac', 'Windows', '互換性'],
+    body: `まだよくわかっていません（調査中）。\n\nAIは「使用できる」と言いますが、実際にはパソコンが違うと動かないケースが確認されています。\nMacで作ったスキルズをWindowsで試したところ、動作しませんでした。調査継続中です。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: 'Web版・デスクトップ版・CLI版・IDEの違いがわからない',
+    tags: ['バージョン', 'Web版', 'CLI', 'IDE'],
+    body: `Claude Codeには4つの形態があります。\n\n1. デスクトップアプリ版（クロコ）← リベシティ推奨！\n2. Web版（ブラウザで動く仮想Linux）\n3. CLI版（黒い画面で動かすやつ）\n4. IDE版（VSCodeなどに統合）← 最終形態\n\n初心者はまずデスクトップアプリ版（白いアイコン）から始めましょう。`
+  },
+  {
+    series: 'クロコのよくある質問',
+    title: '左下の葉っぱマークは何？',
+    tags: ['アップデート', '通知', '葉っぱ'],
+    body: `クロコからのアップデート通知のお知らせです。\n\n放置しても動作に問題はありませんが、誰かに質問したりオフ会に参加する前はアップデートしておくことをおすすめします。\n\nクロコはアップデートが非常に頻繁なので、常に最新版を使うのが吉です。`
+  }
+];
+
+// ===== UI初期化 =====
+const totalCount = FAQ_DATA.length;
+document.getElementById('totalCount').textContent = totalCount;
+
+const previewList = document.getElementById('previewList');
+const seriesColors = ['s0','s1','s2','s3'];
+const seriesMap = {
+  'クロコのよくある質問': 's0',
+  'クロコのインストールはまりどころ': 's1',
+  'クロコのオフ会の参加コツ': 's2',
+  'Claude codeのよくある質問': 's3',
+};
+
+FAQ_DATA.forEach(f => {
+  const div = document.createElement('div');
+  div.className = 'faq-row';
+  const cls = seriesMap[f.series] || 's3';
+  div.innerHTML = `<span class="faq-series ${cls}">${f.series}</span><span class="faq-title">${f.title}</span>`;
+  previewList.appendChild(div);
+});
+
+// ===== Auth =====
+onAuthStateChanged(auth, (user) => {
+  const authArea = document.getElementById('authArea');
+  if (user) {
+    authArea.innerHTML = `<div class="user-badge">✅ ログイン中：${user.displayName || user.email}</div>`;
+    document.getElementById('importBtn').disabled = false;
+  } else {
+    authArea.innerHTML = `<button class="btn btn-google" id="loginBtn">🔑 Googleでログイン</button>`;
+    document.getElementById('loginBtn').addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()));
+    document.getElementById('importBtn').disabled = true;
+  }
+});
+
+// ===== インポート =====
+const logEl = document.getElementById('log');
+function addLog(msg, type='') {
+  const line = document.createElement('div');
+  line.className = 'log-line ' + (type === 'ok' ? 'log-ok' : type === 'err' ? 'log-err' : '');
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+document.getElementById('importBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('importBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ インポート中...';
+  logEl.classList.add('show');
+  addLog(`${FAQ_DATA.length} 件のインポートを開始します...`);
+
+  let ok = 0, err = 0;
+  for (const f of FAQ_DATA) {
+    try {
+      await addDoc(collection(db, 'faq'), {
+        title: f.title,
+        series: f.series,
+        tags: f.tags || [],
+        blocks: [{ type: 'text', content: f.body }],
+        updatedAt: serverTimestamp()
+      });
+      addLog(`✓ ${f.title}`, 'ok');
+      ok++;
+    } catch(e) {
+      addLog(`✗ ${f.title}：${e.message}`, 'err');
+      err++;
+    }
+    await new Promise(r => setTimeout(r, 150));
+  }
+
+  addLog(`\n完了：成功 ${ok} 件 / 失敗 ${err} 件`);
+  document.getElementById('doneBanner').style.display = 'block';
+  document.getElementById('doneMsg').textContent = `${ok}件のFAQをFirestoreに登録しました。`;
+  btn.textContent = '✅ インポート完了';
+});
+</script>
+</body>
+</html>
